@@ -5,13 +5,14 @@
   --text-blue:rgb(0, 102, 204);
   --text-blue-deep:rgb(17, 72, 128);
   --text-pink-deep:rgb(212, 26, 138);
+  --background-link:rgb(246, 241, 222)
 }
 /*******************************************
  * 全体設定
  *******************************************/
 html,
 body {
-  margin: 0;
+  margin: 0; 
   padding: 0;
   /* 全体の背景色（薄い水色） */
   background-color: #dce6ef;
@@ -21,11 +22,11 @@ body {
   width:100%
 }
 .container{
-  max-width:1000px;
+  max-width:770px;
   display:flex;
   flex-direction:column;
-  width:100%;
-  min-width:775px
+  width:90%;
+  /* min-width:775px */
 }
 /*******************************************
    * ヘッダー部分
@@ -37,10 +38,24 @@ body {
   /*  ↑ ここの画像パスやサイズは環境に合わせて修正してください */
   background-size: cover; /* または contain */
 }
+.site-header-mobile{
+  display:none;
+  width:100%;
+  /* padding-left:100px; */
+  position:sticky;
+  top:0;
+  justify-content:center;
+  background-color:var(--background-link);
+}
 
+.site-header-mobile .title-big{
+  color:rgb(88, 88, 91);
+  font-size:22px;
+  padding: 10px 0;
+}
 /* タイトル文字をある程度中央寄せ＋横幅制限 */
 .header-inner {
-  width: 90%;
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   padding:  0; /* 上下余白 */
@@ -110,7 +125,7 @@ body {
   /* 横並びにするため flex を利用 */
   display: flex;
   flex-direction: row;
-  width: 90%;
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -239,7 +254,7 @@ span a:hover::before {
   align-items:center
 }
 .tennis-ball-wrap {
-  width: 500px;
+  max-width: 500px;
 }
 /* テニスボール画像 */
 .tennis-ball {
@@ -274,6 +289,7 @@ span a:hover::before {
 .menu-icon {
   display: none;
   font-size: 24px;
+  font-weight:500;
   cursor: pointer;
   background: none;
   position: absolute;
@@ -292,6 +308,15 @@ span a:hover::before {
 
 /* 画面幅600px以下でハンバーガーメニューを適用 */
 @media screen and (max-width: 600px) {
+  .site-header{
+    display:none
+  }
+  .site-header-mobile{
+    display:flex
+  }
+  .main-container{
+    margin:0
+  }
   .menu-icon {
     display: block; /* ハンバーガーボタンを表示 */
   }
@@ -306,10 +331,20 @@ span a:hover::before {
     padding: 1em;
     transition: left 0.3s ease;
     z-index: 1000;
+    padding-top:60px;
   }
 
   /* チェックボックスがON（☰がクリックされた）ときにメニューを表示 */
   .menu-checkbox:checked + .menu-icon + .left-menu {
     left: 0;
+  }
+  .container{
+    width:100%
+  }
+}
+
+@media screen and (max-width: 800px) {
+  .title-small{
+    display:none
   }
 }
