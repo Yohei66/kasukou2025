@@ -19,7 +19,8 @@ body {
   font-family: "遊ゴシック", sans-serif;
   display:flex;
   justify-content:center;
-  width:100%
+  width:100%;
+  height:100%
 }
 .container{
   max-width:770px;
@@ -82,7 +83,7 @@ body {
 }
 .title-small {
   font-size: 20px;
-  color: #ff66ff; /* 薄めのピンク～フクシア系 */
+  color:rgb(139, 58, 139); /* 薄めのピンク～フクシア系 */
   margin-left: 1em;
 }
 .title-bk{
