@@ -23,8 +23,17 @@ jobs:
           git checkout gh-pages
           git rm -rf .
           git checkout main -- public_html
-          mv public_html/* .
-          rmdir public_html
+
+          # public_html の中身をルートに移動（移動できなかったらエラーを出す）
+          mv public_html/* . || echo "Failed to move files from public_html"
+
+          # public_html が空なら削除
+          if [ -z "$(ls -A public_html)" ]; then
+            rmdir public_html
+          else
+            echo "Warning: public_html is not empty, skipping deletion"
+          fi
+
           git add .
           git commit -m "Auto deploy from main to gh-pages"
           git push origin gh-pages --force
