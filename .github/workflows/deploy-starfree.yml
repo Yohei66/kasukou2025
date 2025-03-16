@@ -1,0 +1,22 @@
+name: Deploy to Starfree Server
+
+on:
+  push:
+    branches:
+      - main  # mainにプッシュされたら実行
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./public_html/  # public_html をデプロイ対象に
+          server-dir: /public_html/  # スターフリーサーバーの公開ディレクトリ
