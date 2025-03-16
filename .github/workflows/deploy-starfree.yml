@@ -19,4 +19,4 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./public_html/  # public_html をデプロイ対象に
-          server-dir: /public_html/  # スターフリーサーバーの公開ディレクトリ
+          server-dir: /kasukou2025.stars.ne.jp/public_html/
