@@ -8,6 +8,8 @@ on:
 jobs:
   fetch-ftp:
     runs-on: ubuntu-latest
+    outputs:
+      conflict: ${{ steps.diff_check.outputs.conflict }}  # ここで `conflict` をジョブ間で共有
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -34,13 +36,15 @@ jobs:
 
           if [ -s diff_log.txt ]; then
             echo "conflict=true" >> $GITHUB_ENV
+            echo "conflict=true" >> $GITHUB_OUTPUT
             echo "🚨 競合が検出されました。GitHub作業者が解決してください。"
           else
             echo "conflict=false" >> $GITHUB_ENV
+            echo "conflict=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Commit FTP changes to a new branch if conflicts exist
-        if: env.conflict == 'true'
+        if: steps.diff_check.outputs.conflict == 'true'
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions@github.com"
@@ -54,7 +58,7 @@ jobs:
           echo "::error::🚨 競合が検出されました。プルリクエストを作成して手動で解決してください。"
 
       - name: Create Pull Request if conflicts exist
-        if: env.conflict == 'true'
+        if: steps.diff_check.outputs.conflict == 'true'
         uses: peter-evans/create-pull-request@v5
         with:
           branch: ${{ github.ref_name }}
@@ -66,7 +70,7 @@ jobs:
 
   deploy:
     needs: fetch-ftp
-    if: env.conflict == 'false'
+    if: needs.fetch-ftp.outputs.conflict == 'false'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
