@@ -21,7 +21,7 @@ jobs:
         run: |
           lftp -c "
           open -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_HOST }};
-          mirror --verbose --only-newer --parallel=2 /public_html/ ./ftp_latest/
+          mirror --verbose --only-newer --parallel=2 ./public_html/ ./ftp_latest/
           bye"
         shell: bash
 
@@ -83,5 +83,5 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./public_html/
-          server-dir: /public_html/
+          server-dir: ./public_html/
           only-newer: true
