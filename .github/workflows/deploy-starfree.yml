@@ -83,5 +83,5 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./public_html/
-          server-dir: /path/to/target-directory/
+          server-dir: ./public_html/
           only-newer: true
