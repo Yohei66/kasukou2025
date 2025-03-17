@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write  # これを追加！
+
 jobs:
   fetch-ftp:
     runs-on: ubuntu-latest
@@ -54,7 +57,7 @@ jobs:
           cp -r ./ftp_backup/* ./public_html/
           git add .
           git commit -m "FTP 変更をマージ。手動でコンフリクトを解決してください。"
-          git push origin $BRANCH_NAME
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git $BRANCH_NAME
           echo "::error::🚨 競合が検出されました。プルリクエストを作成して手動で解決してください。"
 
       - name: Create Pull Request if conflicts exist
