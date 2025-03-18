@@ -3,49 +3,58 @@ name: Deploy to Starfree Server
 on:
   push:
     branches:
-      - main
+      - main  # main ブランチに push されたら実行
 
 permissions:
-  contents: write  # これを追加！
+  contents: write
+  pull-requests: write  # PR 自動作成のために必要
 
 jobs:
   fetch-ftp:
     runs-on: ubuntu-latest
+
+    # 後続ジョブ(deploy)で使う出力値を格納する場所
     outputs:
-      conflict: ${{ steps.diff_check.outputs.conflict }}  # ここで `conflict` をジョブ間で共有
+      conflict: ${{ steps.diff_check.outputs.conflict }}
+
     steps:
+      # (1) GitHubリポジトリをチェックアウト
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # (2) lftpインストール
       - name: Install lftp
         run: sudo apt-get install -y lftp
 
+      # (3) FTPファイルをダウンロード
       - name: Fetch latest files from FTP before deploying
         run: |
+          # /public_html/ → 実際のサーバー上のディレクトリに置き換えてください
           lftp -c "
           open -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_HOST }};
           mirror --verbose --only-newer --parallel=2 /kasukou2025.stars.ne.jp/public_html ./ftp_latest/
           bye"
         shell: bash
 
+      # (4) 差分比較
       - name: Compare local and FTP files
         id: diff_check
         run: |
           mkdir -p ./ftp_backup
-          cp -r ./ftp_latest/* ./ftp_backup/
+          # ftp_latest/ に落としてきたファイルを ftp_backup/ にコピー
+          cp -r ./ftp_latest/* ./ftp_backup/ || true
 
-          # 比較用のdiffログ作成
+          # diff_log.txt に比較結果を出力 (差分が無くてもexit 0にするため `|| true`)
           diff -rq ./ftp_backup/ ./public_html/ > diff_log.txt || true
 
+          # diff_log.txt が空でなければ競合あり
           if [ -s diff_log.txt ]; then
-            echo "conflict=true" >> $GITHUB_ENV
             echo "conflict=true" >> $GITHUB_OUTPUT
-            echo "🚨 競合が検出されました。GitHub作業者が解決してください。"
           else
-            echo "conflict=false" >> $GITHUB_ENV
             echo "conflict=false" >> $GITHUB_OUTPUT
           fi
 
+      # (5) 競合がある場合、ブランチを作成してプルリクを促す
       - name: Commit FTP changes to a new branch if conflicts exist
         if: steps.diff_check.outputs.conflict == 'true'
         run: |
@@ -53,38 +62,46 @@ jobs:
           git config --global user.email "github-actions@github.com"
 
           BRANCH_NAME="ftp-conflict-$(date +%Y%m%d-%H%M%S)"
+          # 新規ブランチを作成
           git checkout -b $BRANCH_NAME
-          cp -r ./ftp_backup/* ./public_html/
-          git add .
-          git commit -m "FTP 変更をマージ。手動でコンフリクトを解決してください。"
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git $BRANCH_NAME
-          echo "::error::🚨 競合が検出されました。プルリクエストを作成して手動で解決してください。"
+          
+          # FTPバックアップファイルを GitHub側(public_html/) に上書きコピー
+          cp -r ./ftp_backup/* ./public_html/ || true
 
+          # ステージング & コミット
+          git add .
+          git commit -m "FTPのファイルを取り込み。手動で不要ファイルを整理・コンフリクトを解消してください。" || exit 0
+
+          # ブランチをpush
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git $BRANCH_NAME
+
+      # (6) プルリクエストを作成
       - name: Create Pull Request if conflicts exist
         if: steps.diff_check.outputs.conflict == 'true'
         uses: peter-evans/create-pull-request@v5
         with:
-          branch: ${{ github.ref_name }}
-          title: "🚨 FTP変更との競合を解決してください"
+          branch: ftp-conflict-${{ github.run_id }}
+          title: "FTPとの差分あり。不要ファイルを整理・マージしてください"
           body: |
-            🚨 FTPで直接編集されたファイルとGitHubの変更が競合しています。
-            `diff_log.txt` に競合リストがあります。
-            手動でコンフリクトを解消し、マージしてください。
+            以下のFTPファイルとGitHubファイルに差分がありました。
+            `diff_log.txt` を確認し、不要ファイルがあれば削除等を行って手動でマージしてください。
+          base: main  # mainブランチに向けてPRを作成
 
+  # (7) 競合がない場合に限り、デプロイを実行
   deploy:
     needs: fetch-ftp
-    if: needs.fetch-ftp.outputs.conflict == 'false'
+    if: needs.fetch-ftp.outputs.conflict == 'false'  # 競合=falseならデプロイ
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Deploy via FTP
+      - name: Deploy via FTP (Only changed files)
         uses: SamKirkland/FTP-Deploy-Action@4.3.5
         with:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./public_html/
-          server-dir: /kasukou2025.stars.ne.jp/public_html
+          server-dir: /kasukou2025.stars.ne.jp/public_html  # 実際のFTPディレクトリに合わせて修正
           only-newer: true

@@ -1,0 +1,90 @@
+name: Deploy to Starfree Server
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write  # これを追加！
+
+jobs:
+  fetch-ftp:
+    runs-on: ubuntu-latest
+    outputs:
+      conflict: ${{ steps.diff_check.outputs.conflict }}  # ここで `conflict` をジョブ間で共有
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install lftp
+        run: sudo apt-get install -y lftp
+
+      - name: Fetch latest files from FTP before deploying
+        run: |
+          lftp -c "
+          open -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_HOST }};
+          mirror --verbose --only-newer --parallel=2 /kasukou2025.stars.ne.jp/public_html ./ftp_latest/
+          bye"
+        shell: bash
+
+      - name: Compare local and FTP files
+        id: diff_check
+        run: |
+          mkdir -p ./ftp_backup
+          cp -r ./ftp_latest/* ./ftp_backup/
+
+          # 比較用のdiffログ作成
+          diff -rq ./ftp_backup/ ./public_html/ > diff_log.txt || true
+
+          if [ -s diff_log.txt ]; then
+            echo "conflict=true" >> $GITHUB_ENV
+            echo "conflict=true" >> $GITHUB_OUTPUT
+            echo "🚨 競合が検出されました。GitHub作業者が解決してください。"
+          else
+            echo "conflict=false" >> $GITHUB_ENV
+            echo "conflict=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit FTP changes to a new branch if conflicts exist
+        if: steps.diff_check.outputs.conflict == 'true'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions@github.com"
+
+          BRANCH_NAME="ftp-conflict-$(date +%Y%m%d-%H%M%S)"
+          git checkout -b $BRANCH_NAME
+          cp -r ./ftp_backup/* ./public_html/
+          git add .
+          git commit -m "FTP 変更をマージ。手動でコンフリクトを解決してください。"
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git $BRANCH_NAME
+          echo "::error::🚨 競合が検出されました。プルリクエストを作成して手動で解決してください。"
+
+      - name: Create Pull Request if conflicts exist
+        if: steps.diff_check.outputs.conflict == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          branch: ${{ github.ref_name }}
+          title: "🚨 FTP変更との競合を解決してください"
+          body: |
+            🚨 FTPで直接編集されたファイルとGitHubの変更が競合しています。
+            `diff_log.txt` に競合リストがあります。
+            手動でコンフリクトを解消し、マージしてください。
+
+  deploy:
+    needs: fetch-ftp
+    if: needs.fetch-ftp.outputs.conflict == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./public_html/
+          server-dir: /kasukou2025.stars.ne.jp/public_html
+          only-newer: true
