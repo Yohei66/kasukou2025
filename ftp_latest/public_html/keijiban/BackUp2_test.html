@@ -1,0 +1,287 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="ja">
+
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+<title>春日部硬式テニスクラブ　何でも伝言板</title>
+
+
+
+<link rel="stylesheet" type="text/css" href="css/screen.css" charset="utf-8" />
+
+<link rel="stylesheet" type="text/css" href="css/bbs.css" charset="utf-8" />
+
+<!--
+
+<link rel="stylesheet" type="text/css" href="http://i.yimg.jp/images/geo/bbs/user/css/tree.css" />
+
+-->
+
+<script type="text/javascript" src="http://bc.geocities.yahoo.co.jp/js/bbs/yahoo.js" charset="utf-8"></script>
+
+<!--
+
+<script type="text/javascript" src="http://bc.geocities.yahoo.co.jp/js/bbs/treeview.js"></script>
+
+-->
+
+<script type="text/javascript" src="js/treeview.js" charset="utf-8"></script>
+
+<script type="text/javascript" src="http://bc.geocities.yahoo.co.jp/js/bbs/connection.js" charset="utf-8"></script>
+
+<script type="text/javascript" src="http://bc.geocities.yahoo.co.jp/js/bbs/event.js" charset="utf-8"></script>
+
+<script type="text/javascript" src="http://bc.geocities.yahoo.co.jp/js/bbs/dom.js" charset="utf-8"></script>
+
+<script type="text/javascript" src="http://bc.geocities.yahoo.co.jp/js/bbs/dragdrop.js" charset="utf-8"></script>
+
+<script type="text/javascript" src="http://bc.geocities.yahoo.co.jp/js/bbs/ygDDOnTop.js" charset="utf-8"></script>
+
+
+
+<script type="text/javascript" src="js/bbs_conf.js" charset="utf-8"></script>
+
+<script type="text/javascript" src="js/bbs.js" charset="utf-8"></script>
+
+
+
+<script type="text/javascript">
+
+<!--
+
+// イベント割り当て
+
+YAHOO.util.Event.addListener(window, 'load', treeInit);
+
+// -->
+
+</script>
+
+
+
+<base href="http://sports.geocities.jp/kasukabetennis/keijiban/"></head>
+
+
+
+<body style="background-color: #fffdfb;">
+
+<br>
+
+<div id="ygbbscont">
+
+
+
+<!--- title-->
+
+<div id="ygbbstitle">
+
+	<div id="ygbbsdot">
+
+		<h1>春日部硬式テニスクラブ　何でも伝言板</h1>
+
+		<p>春日部硬式テニスクラブ会員の為の何でも伝言板です。<br />
+
+			内容は問いませんが、クラブ員以外の利用は禁止します。<br />
+
+			
+			気持ち良く使ってください。<br />
+
+		</p>
+
+	</div><!-- /ygbbsdot -->
+
+</div><!-- /ygbbstitle -->
+
+<!--- /title-->
+
+
+
+    <p><!---navi-->
+
+<div id="ygbbsnavi">
+
+	<div class="left">
+
+		<input type="button" value="新規投稿" onClick="javascript:openCommentWindow(0);"
+
+			title="新しく投稿します" class="submit" style="margin-bottom: 2px;"
+
+			onMouseover="this.className='rollSubmit';" onMouseout="this.className='submit';" tabindex="-1">
+
+	</div><!-- /left -->
+
+	<p><!-- /right -->
+
+</div><!-- /ygbbsnavi -->
+
+<!---/navi-->
+
+
+
+<!---main-->
+
+<div id="ygbbsmain">
+
+	<!--<br clear="all">-->
+
+	<div id="contents">
+
+		<noscript>
+
+			<a href="http://help.yahoo.co.jp/help/jp/common/sys/sys-07.html" target="_blank">JavaScriptが有効に設定されてないと表示されません。</a>
+
+		</noscript>
+
+	</div><!-- /contents -->
+
+	<br clear="all">
+
+</div><!-- /ygbbsmain -->
+
+<!---/main-->
+
+
+
+<!---navi-->
+
+<div id="ygbbsnavi">
+
+	<div class="left">
+
+		<input type="button" value="新規投稿" onClick="javascript:openCommentWindow(0);"
+
+			title="新しく投稿します" class="submit" style="margin-top: 5px;"
+
+			onMouseover="this.className='rollSubmit';" onMouseout="this.className='submit';" tabindex="-1">
+
+	</div><!-- /left -->
+
+	<p><!-- /right -->
+
+</div><!-- /ygbbsnavi -->
+
+<!---/navi-->
+
+
+
+
+
+    <p><!---footer-->
+
+<!---/footer-->
+
+
+
+</div><!-- /ygbbscont -->
+
+
+
+<div id="formline" style="display:none;">
+
+<div id="formbox">
+
+<div id="handle" title="ドラッグで移動できます。"><span>投稿</span></div><!-- /handle -->
+
+<form name="newMessage" method="post" action="#" autocomplete="off" style="margin:0px;">
+
+	<fieldset>
+
+		<input type="hidden" id="p_msgid" name="p_msgid" value="">
+
+		<dl>
+
+		<div id="frmTitle">
+
+		<dt><label for="title">タイトル</label></dt>
+
+		<dd>
+
+			<input id="title" name="title" size="50" type="text" class="comment" tabindex="1"
+
+				onFocus="this.className='rollComment';" onBlur="this.className='comment';">
+
+		</dd>
+
+		</div><!-- /frmTitle -->
+
+		<dt><label for="author">お名前</label></dt>
+
+		<dd>
+
+			<input id="author" name="author" size="50" type="text" class="comment" tabindex="2"
+
+				onFocus="this.className='rollComment';" onBlur="this.className='comment';">
+
+		</dd>
+
+<!--
+
+		<dt><label for="em">メールアドレス</label></dt>
+
+		<dd>
+
+			<input id="em" name="em" size="50" type="text" class="comment"
+
+				onFocus="this.className='rollComment';" onBlur="this.className='comment';">
+
+		</dd>
+
+-->
+
+		<dt><label for="url">ホームページ</label></dt>
+
+		<dd>
+
+			<input id="url" name="url" size="50" type="text" class="comment" tabindex="3"
+
+				onFocus="this.className='rollComment';" onBlur="this.className='comment';">
+
+		</dd>
+
+		<dt><label for="body">本文（必須）</label></dt>
+
+		<dd>
+
+			<textarea id="body" name="body" cols="50" type="text" rows="7" class="commentbody" tabindex="4"
+
+				onFocus="this.className='rollCommentbody';" onBlur="this.className='commentbody';">
+
+			</textarea>
+
+		</dd>
+
+		<dd class="cent">
+
+		<input type="button" name="postb" value="送信" onClick="return postMessage()"
+
+			title="投稿します" class="submit" tabindex="5"
+
+			onMouseover="this.className='rollSubmit';" onMouseout="this.className='submit';">
+
+			&nbsp;&nbsp;&nbsp;&nbsp;
+
+		<input type="button" name="cancelb" value="キャンセル" onClick="javascript:closeCommentWindow();"
+
+			title="投稿をキャンセルします" class="submit" tabindex="6"
+
+			onMouseover="this.className='rollSubmit';" onMouseout="this.className='submit';">
+
+		</dd>
+
+		</dl>
+
+	</fieldset>
+
+</form><!-- /newMessage -->
+
+</div><!-- /formbox -->
+
+</div><!-- /formline -->
+
+</body>
+
+</html>
+
