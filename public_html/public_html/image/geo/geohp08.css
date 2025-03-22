@@ -1,0 +1,216 @@
+/* ------------------------------------------- body */
+
+body 
+{  
+text-align: center;
+background: #E5EEF7;
+}
+
+body,
+td
+{
+font-size:x-small; /* win ie5.x */
+fo\nt-size:x-small; /* win ie6.x,mac ie5.x */
+line-height: 1.4em;
+}
+
+html>body,
+html>body td
+{ /* gecko and macie  */
+font-size:small;
+font-family:sans-serif;
+line-height: 1.4em;
+}
+
+em{
+font-style:normal;
+}
+
+
+/* ------------------------------------------- layout */
+
+#ghcont 
+{
+width: 650px;
+background-color: #ffffff;
+padding:0;
+margin:0;
+}
+
+#ghtitle 
+{
+width:650px;
+height:110px;
+background-image: url(http://i.yimg.jp/images/geo/geocre/tmpl/08/img/title-bk.jpg);
+padding:0;
+margin:0;
+}
+
+#ghmain 
+{
+width: 650px;
+background-color: #ffffff;
+margin: 0;
+}
+
+#c1 
+{
+width: 155px;
+background-color: #ffffff;
+vertical-align: top;
+padding:0px;
+margin-right:0px;
+text-align: center;
+}
+
+
+#c2 
+{
+width: 495px;
+text-align: center;
+}
+
+/* ------------------------------------------- header */
+
+h1 
+{
+color:#0082FF;
+font-size: 14px;
+text-align: left;
+padding-top: 20px;
+padding-left: 10px;
+margin:0;
+}
+
+h2 
+{
+font-size: 12px;
+font-weight: normal;
+color:#002A50;
+}
+
+/* ------------------------------------------- menu */
+
+#ghmenu_home
+{
+text-align: left;
+margin:0 0 0 1px;
+padding-top:8;
+padding-left:10;
+background-color: #EFECDB;
+}
+
+/* gecko \*/
+html>body #ghmenu_home
+{
+padding-top:2px;
+}
+/* gecko end */
+
+#ghmenu
+{
+text-align: left;
+margin:0 0 0 1px;
+padding-top:8;
+padding-left:10;
+background-color: #EFECDB;
+}
+
+#ghgl
+{
+width: 153px;
+padding-top:3px;
+padding-bottom:3px;
+}
+
+#ghdr
+{
+width: 153px;
+text-align: left;
+padding-top:3px;
+padding-bottom:3px;
+}
+
+#ghgb
+{
+width: 153px;
+text-align: left;
+padding-top:3px;
+padding-bottom:3px;
+}
+
+#ghm 
+{
+text-align: center;
+padding-bottom:10px;
+}
+
+#ghlo 
+{
+text-align: center;
+padding-bottom:10px;
+}
+
+.ghnav_l 
+{
+border-bottom:#E4E4E4 1px solid;
+}
+
+.contentstitle
+{
+height:30px;
+color:#56370B;
+}
+
+
+/* ------------------------------------------- general-purpose */
+.spacer1
+{ 
+font-size: 0;
+line-height: 0;
+width: 10px;
+height: 1px;
+clear: both;
+}
+	
+.spacer20
+{
+font-size: 0; 
+line-height: 0;
+width: 20px;
+height: 20px;
+clear: both;
+}
+		
+
+img
+{
+border: 0;
+}
+
+p
+{
+margin:0;
+line-height: 1.5em;  
+}
+
+	
+/* ------------------------------------------- link */
+a:link 
+{
+text-decoration : none;
+background: transparent;
+}
+
+a:visited
+{
+text-decoration : none;
+background: transparent;
+}
+
+a:hover
+{
+text-decoration : underline;
+background: transparent;
+}
+
