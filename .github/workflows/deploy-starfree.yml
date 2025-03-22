@@ -3,17 +3,16 @@ name: Deploy to Starfree Server
 on:
   push:
     branches:
-      - main  # main ブランチに push されたら実行
+      - main  # mainブランチに pushされたら実行
 
 permissions:
   contents: write
-  pull-requests: write  # PR 自動作成のために必要
+  pull-requests: write  # PR自動作成のために必要
 
 jobs:
   fetch-ftp:
     runs-on: ubuntu-latest
 
-    # 後続ジョブ(deploy)で使う出力値を格納する場所
     outputs:
       conflict: ${{ steps.diff_check.outputs.conflict }}
 
@@ -26,10 +25,9 @@ jobs:
       - name: Install lftp
         run: sudo apt-get install -y lftp
 
-      # (3) FTPファイルをダウンロード
+      # (3) FTPファイルをダウンロード (public_htmlのみ)
       - name: Fetch latest files from FTP before deploying
         run: |
-          # /public_html/ → 実際のサーバー上のディレクトリに置き換えてください
           lftp -c "
           open -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_HOST }};
           mirror --verbose --only-newer --parallel=2 /kasukou2025.stars.ne.jp/public_html ./ftp_latest/
@@ -41,7 +39,6 @@ jobs:
         id: diff_check
         run: |
           mkdir -p ./ftp_backup
-          # ftp_latest/ に落としてきたファイルを ftp_backup/ にコピー
           cp -r ./ftp_latest/* ./ftp_backup/ || true
 
           # diff_log.txt に比較結果を出力 (差分が無くてもexit 0にするため `|| true`)
@@ -61,19 +58,23 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions@github.com"
 
-          BRANCH_NAME="ftp-conflict-$(date +%Y%m%d-%H%M%S)"
+          # ブランチ名を1つの変数にまとめ、PRでも同じものを使うようにする
+          BRANCH_NAME="ftp-conflict-${{ github.run_id }}"
+
           # 新規ブランチを作成
           git checkout -b $BRANCH_NAME
-          
-          # FTPバックアップファイルを GitHub側(public_html/) に上書きコピー
+
+          # FTPバックアップファイルを GitHub側 (./public_html/) に上書きコピー
           cp -r ./ftp_backup/* ./public_html/ || true
 
           # ステージング & コミット
           git add .
-          git commit -m "FTPのファイルを取り込み。手動で不要ファイルを整理・コンフリクトを解消してください。" || exit 0
+          git commit -m "FTPのファイルを取り込み。手動で不要ファイルを整理・コンフリクトを解消してください。"
 
           # ブランチをpush
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git $BRANCH_NAME
+          git push \
+            "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" \
+            $BRANCH_NAME
 
       # (6) プルリクエストを作成
       - name: Create Pull Request if conflicts exist
@@ -87,10 +88,10 @@ jobs:
             `diff_log.txt` を確認し、不要ファイルがあれば削除等を行って手動でマージしてください。
           base: main  # mainブランチに向けてPRを作成
 
-  # (7) 競合がない場合に限り、デプロイを実行
+  # (7) 競合がない場合に限りデプロイを実行
   deploy:
     needs: fetch-ftp
-    if: needs.fetch-ftp.outputs.conflict == 'false'  # 競合=falseならデプロイ
+    if: needs.fetch-ftp.outputs.conflict == 'false'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -103,5 +104,5 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./public_html/
-          server-dir: /kasukou2025.stars.ne.jp/public_html  # 実際のFTPディレクトリに合わせて修正
+          server-dir: /kasukou2025.stars.ne.jp/public_html
           only-newer: true
