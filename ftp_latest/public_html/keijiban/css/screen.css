@@ -1,0 +1,516 @@
+@charset "utf-8";
+
+
+
+/* div {border:1px solid #ff6600;}*/
+
+
+
+#ygbbscont {
+
+	width:550px;
+
+	margin:0 auto;
+
+}
+
+
+
+/*　bbs-tile */
+
+#ygbbstitle {
+
+	padding: 10px 0px 10px 0px;
+
+	margin: 15px 15px 15px 15px;
+
+	border: 2px dotted #f0d4c0;
+
+	color: #c0a490;
+
+}
+
+
+
+#ygbbstitle h1 {
+
+	font-size: 18px;
+
+	font-weight: bold;
+
+}
+
+
+
+#ygbbstitle h2 {
+
+	font-size: 10px;
+
+	margin: 0px 50px 0px 0px;
+
+	font-weight: normal;
+
+	text-align: right;
+
+}
+
+
+
+#ygbbstitle p {
+
+	font-size: 12px;
+
+	margin: 10px 0px 0px 80px;
+
+	text-align: left;
+
+}
+
+
+
+#ygbbstitle a:link, a:visited {
+
+	font:bold 12px Tahoma;
+
+	color: #c0a490;
+
+}
+
+
+
+#ygbbstitle a:hover {
+
+	color: #f5d9b5;
+
+}
+
+
+
+/* navi-link　*/
+
+#ygbbsnavi {
+
+	margin-bottom: 2px;
+
+	padding: 0px;
+
+	height: 16px;
+
+	width:550px;
+
+}
+
+
+
+#ygbbsnavi .left {
+
+	float: left;
+
+	margin:0px;
+
+}
+
+
+
+#ygbbsnavi .right {
+
+	float: right;
+
+	margin:0px;
+
+	height:100%;
+
+}
+
+
+
+/* main-column　*/
+
+#ygbbsmain {
+
+	border:1px solid #f0d4c0;
+
+	margin: 0px;
+
+	padding-top: 5px;
+
+	padding-bottom: 5px;
+
+	width:550px;
+
+	clear: both;
+
+}
+
+
+
+#contents {
+
+	margin: 0px;
+
+	padding: 0px;
+
+	width:550px;
+
+}
+
+
+
+/* footer　*/
+
+#ygbbsfooter {
+
+	text-align: center;
+
+}
+
+
+
+/* bbs-items */
+
+.ygbbspg {
+
+	font:bold 12px Tahoma;
+
+	margin: 0px 5px 0px 0px;
+
+}
+
+
+
+.ygbbspg a:link, .ygbbspg a:visited {
+
+/*
+
+	font:bold 12px Tahoma;
+
+*/
+
+	text-decoration:none;
+
+	color: #c0a490;
+
+}
+
+
+
+.ygbbspg a:hover {
+
+	color: #e0c490;
+
+}
+
+
+
+.maincont {
+
+	border: 3px #e0c4b0 double;
+
+	background-color: #fffff8;
+
+	margin-left: 5%;
+
+	margin-right: 5%;
+
+	width: 90%;
+
+	margin-top: 20px;
+
+}
+
+
+
+.maintitle {
+
+	font-size:16px;
+
+	font-weight:bold;
+
+	padding: 5px 5px 0px 5px;
+
+	text-align:left;
+
+}
+
+
+
+.mainauthor {
+
+	white-space: nowrap;
+
+	text-align: right;
+
+	padding: 5px 5px 0px 0px;
+
+	font-size: 12px;
+
+	vertical-align: top;
+
+}
+
+
+
+.resBtn {
+
+	width: 60px;
+
+	margin: 0px 0px 0px 5px;
+
+	padding: 0px 0px 0px 8px;
+
+	font-size: 12px;
+
+	color: #b8a8a0;
+
+	border: 1px solid #e0c4b0;
+
+	background-color: #f8f1e7;
+
+	background-repeat: no-repeat;
+
+	background-image: url(http://i.yimg.jp/images/geo/bbs/user/bbs_reply.gif);
+
+}
+
+
+
+.rollResBtn {
+
+	width: 60px;
+
+	margin: 0px 0px 0px 5px;
+
+	padding: 0px 0px 0px 8px;
+
+	font-size: 12px;
+
+	color: #d8c8c0;
+
+	background-color: #fdf6f0;
+
+	border: 1px solid #f5d9b5;
+
+	background-repeat: no-repeat;
+
+	background-image: url(http://i.yimg.jp/images/geo/bbs/user/bbs_reply.gif);
+
+}
+
+
+
+.mainline {
+
+	height: 1px;
+
+	font-size: 0px;
+
+	background-color: #f8f1ea;
+
+}
+
+
+
+.mainmsg {
+
+	font-size: 12px;
+
+	margin: 6px 0px 4px 20px;
+
+	word-break: break-all;
+
+	overflow: auto;
+
+}
+
+
+
+.rescont {
+
+	border:1px #e0c4b0 solid;
+
+	background-color:#f8f1e7;
+
+	margin-left:11%;
+
+	margin-right:6%;
+
+	width:83%;
+
+	margin-top:4px;
+
+}
+
+
+
+.restitle {
+
+	font-size:12px;
+
+	font-weight:bold;
+
+	padding: 2px 2px 0px 2px;
+
+}
+
+
+
+.resauthor {
+
+	font-size:12px;
+
+	margin: 2px 0px 0px 0px;
+
+	padding: 0px 4px 0px 0px;
+
+	white-space: nowrap;
+
+	text-align: right;
+
+	float:right;
+
+}
+
+
+
+.resline {
+
+	height: 1px;
+
+	font-size: 0px;
+
+	background-color: #f1e5e0;
+
+}
+
+
+
+.resmsg {
+
+	font-size: 12px;
+
+	margin: 5px 0px 3px 15px;
+
+	word-break: break-all;
+
+	overflow: auto;
+
+}
+
+
+
+
+
+/*** general ***/
+
+h1, h2, h3, h4, h5, h6, p {
+
+	margin:0;
+
+	padding:0;
+
+	border:0;
+
+}
+
+
+
+.spacer10 {
+
+	font-size: 0;
+
+	line-height: 0;
+
+	width: 10px;
+
+	height:10px;
+
+	clear: both;
+
+}
+
+
+
+html {
+
+	scrollbar-face-color: #f8f1e7; 
+
+	scrollbar-highlight-color: #e0c4b0;
+
+	scrollbar-shadow-color: #dcdcdc;
+
+	scrollbar-3dlight-color: #e0c4b0;
+
+	scrollbar-arrow-color: #fffff8;
+
+	scrollbar-track-color: #fffff5;
+
+	scrollbar-darkshadow-color: #ffffff;
+
+}
+
+
+
+/*** FONT ***/
+
+body {
+
+	font-size:x-small;
+
+	fo\nt-size:x-small;
+
+	line-height: 130%;
+
+	color:#747474;
+
+	text-align:center;
+
+}
+
+
+
+/* for gecko without mac ie5 \*/
+
+html>body {
+
+	font-size: 84.5%;
+
+	font-family:sans-serif;
+
+	line-height: 1.3em;
+
+}
+
+
+
+/* for gecko without mac ie5 end */
+
+x-small {
+
+	font-size:100%;
+
+}
+
+
+
+em {
+
+	font-style:normal;
+
+}
+
+
+
+form {
+
+	margin:0;
+
+}
+
+.emg {
+
+	margin:10px 0;
+
+}
+
+
+
