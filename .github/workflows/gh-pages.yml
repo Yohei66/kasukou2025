@@ -1,0 +1,39 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - develop  # develop に push されたら実行
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions@github.com"
+
+      - name: Deploy public_html to gh-pages
+        run: |
+          git fetch origin gh-pages || git checkout --orphan gh-pages
+          git checkout gh-pages
+          git rm -rf .
+          git checkout main -- public_html
+
+          # public_html の中身をルートに移動（移動できなかったらエラーを出す）
+          mv public_html/* . || echo "Failed to move files from public_html"
+
+          # public_html が空なら削除
+          if [ -z "$(ls -A public_html)" ]; then
+            rmdir public_html
+          else
+            echo "Warning: public_html is not empty, skipping deletion"
+          fi
+
+          git add .
+          git commit -m "Auto deploy from main to gh-pages"
+          git push origin gh-pages --force
