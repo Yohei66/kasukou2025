@@ -1,0 +1,49 @@
+name: Sync FTP to GitHub
+
+on:
+  workflow_dispatch:    # 手動実行もOK。cron指定も可能
+  schedule:
+    - cron: '0 0 * * *' # 毎日0時にも実行
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install lftp
+        run: sudo apt-get install -y lftp
+
+      - name: Fetch FTP snapshot
+        run: |
+          lftp -c "
+            open -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_HOST }};
+            mirror --verbose --only-newer --parallel=2 /kasukou2025.stars.ne.jp/public_html/ ./ftp_latest/
+            bye"
+
+      - name: Commit snapshot to ftp-latest branch
+        run: |
+          git checkout -B ftp-latest
+          rm -rf public_html/*       # 古いファイルをクリア
+          cp -r ./ftp_latest/* ./public_html/
+          git add public_html
+          git commit -m "📥 Sync FTP snapshot $(date '+%Y-%m-%d %H:%M:%S')" || echo "No changes"
+          git push --force origin ftp-latest
+
+      - name: Create or update Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ftp-latest
+          base: main
+          title: "🔄 Sync FTP → main"
+          body: |
+            FTPサーバの最新スナップショットを取り込みました。
+            差分を確認し、問題なければマージしてください。
