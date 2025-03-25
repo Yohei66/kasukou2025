@@ -3,16 +3,15 @@ name: Deploy to Starfree Server
 on:
   push:
     branches:
-      - main  # mainブランチに pushされたら実行
+      - main  # mainブランチに push されたら実行
 
 permissions:
   contents: write
-  pull-requests: write  # PR自動作成のために必要
+  pull-requests: write  # Pull Request自動作成のために必要
 
 jobs:
   fetch-ftp:
     runs-on: ubuntu-latest
-
     outputs:
       conflict: ${{ steps.diff_check.outputs.conflict }}
 
@@ -20,16 +19,20 @@ jobs:
       # (1) GitHubリポジトリをチェックアウト
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          # 必要に応じて履歴すべてを取得するなら fetch-depth: 0 にする
+          fetch-depth: 0
 
       # (2) lftpインストール
       - name: Install lftp
         run: sudo apt-get install -y lftp
 
-      # (3) FTPファイルをダウンロード (public_htmlのみ)
+      # (3) FTPファイルをダウンロード (public_html の中身のみ)
       - name: Fetch latest files from FTP before deploying
         run: |
           lftp -c "
           open -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_HOST }};
+          # 末尾に / を付けることで public_html の“中身”を ./ftp_latest にダウンロード
           mirror --verbose --only-newer --parallel=2 /kasukou2025.stars.ne.jp/public_html/ ./ftp_latest/
           bye"
         shell: bash
@@ -38,11 +41,9 @@ jobs:
       - name: Compare local and FTP files
         id: diff_check
         run: |
-          mkdir -p ./ftp_backup
-          cp -r ./ftp_latest/* ./ftp_backup/ || true
-
-          # diff_log.txt に比較結果を出力 (差分が無くてもexit 0にするため `|| true`)
-          diff -rq ./ftp_backup/ ./public_html/ > diff_log.txt || true
+          # 公開フォルダ(public_html) と ftp_latest の差分を diff_log.txt に出力
+          # 差分があってもエラー終了しないように '|| true' を付ける
+          diff -rq ./ftp_latest/ ./public_html/ > diff_log.txt || true
 
           # diff_log.txt が空でなければ競合あり
           if [ -s diff_log.txt ]; then
@@ -51,44 +52,50 @@ jobs:
             echo "conflict=false" >> $GITHUB_OUTPUT
           fi
 
-      # (5) 競合がある場合、ブランチを作成してプルリクを促す
+      # (5) 差分がある場合、ブランチを作成してプルリクを促す
       - name: Commit FTP changes to a new branch if conflicts exist
+        id: commit_ftp
         if: steps.diff_check.outputs.conflict == 'true'
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions@github.com"
 
-          # ブランチ名を1つの変数にまとめ、PRでも同じものを使うようにする
-          BRANCH_NAME="ftp-conflict-${{ github.run_id }}"
+          # 現在日時でユニークなブランチ名を作る（例: ftp-conflict-20250328-153045）
+          DATE_STR=$(date '+%Y%m%d-%H%M%S')
+          BRANCH_NAME="ftp-conflict-${DATE_STR}"
+
+          # ブランチ名を後のStepでも使えるよう outputs に書き出す
+          echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
 
           # 新規ブランチを作成
-          git checkout -b $BRANCH_NAME
+          git checkout -b "$BRANCH_NAME"
 
-          # FTPバックアップファイルを GitHub側 (./public_html/) に上書きコピー
-          cp -r ./ftp_backup/* ./public_html/ || true
+          # FTPから取得したファイルを public_html にコピー (上書き)
+          cp -r ./ftp_latest/* ./public_html/ || true
 
           # ステージング & コミット
           git add .
-          git commit -m "FTPのファイルを取り込み。手動で不要ファイルを整理・コンフリクトを解消してください。"
+          git commit -m "FTPのファイルを取り込み (${DATE_STR})。手動で不要ファイルの整理・コンフリクトを解消してください。"
 
           # ブランチをpush
-          git push \
-            "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" \
-            $BRANCH_NAME
+          git push origin "$BRANCH_NAME"
 
       # (6) プルリクエストを作成
       - name: Create Pull Request if conflicts exist
         if: steps.diff_check.outputs.conflict == 'true'
         uses: peter-evans/create-pull-request@v5
         with:
-          branch: ftp-conflict-${{ github.run_id }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # (5) の Step から取得したブランチ名
+          branch: ${{ steps.commit_ftp.outputs.branch_name }}
+          base: main  # mainブランチに向けてPRを作成
           title: "FTPとの差分あり。不要ファイルを整理・マージしてください"
           body: |
-            以下のFTPファイルとGitHubファイルに差分がありました。
-            `diff_log.txt` を確認し、不要ファイルがあれば削除等を行って手動でマージしてください。
-          base: main  # mainブランチに向けてPRを作成
+            FTP上のファイルとGitHub上のpublic_htmlに差分が見つかりました。
+            `diff_log.txt` を確認のうえ、不要ファイルがあれば整理しつつ
+            コンフリクトを解消してマージをお願いします。
 
-  # (7) 競合がない場合に限りデプロイを実行
+  # (7) 競合がない場合にデプロイを実行
   deploy:
     needs: fetch-ftp
     if: needs.fetch-ftp.outputs.conflict == 'false'
