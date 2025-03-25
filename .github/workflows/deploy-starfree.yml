@@ -51,7 +51,7 @@ jobs:
             echo "conflict=false" >> "$GITHUB_OUTPUT"
           fi
 
-      # (5) 差分がある場合のみ、ブランチ作成＆コミット
+           # (5) 差分がある場合、ブランチを作成（差分がGit的にあった場合のみコミット）
       - name: Commit FTP changes to a new branch if conflicts exist
         id: commit_ftp
         if: steps.diff_check.outputs.conflict == 'true'
@@ -64,13 +64,11 @@ jobs:
           echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
 
           git checkout -b "$BRANCH_NAME"
-
-          cp -vr ./ftp_latest/* ./public_html/ || true
+          cp -r ./ftp_latest/* ./public_html/ || true
 
           git add .
-
           if ! git diff --cached --quiet; then
-            git commit -m "FTPのファイルを取り込み (${DATE_STR})"
+            git commit -m "FTPのファイルを取り込み (${DATE_STR})。手動で不要ファイルの整理・コンフリクトを解消してください。"
             git push origin "$BRANCH_NAME"
             echo "pushed=true" >> "$GITHUB_OUTPUT"
           else
@@ -78,10 +76,9 @@ jobs:
             echo "pushed=false" >> "$GITHUB_OUTPUT"
           fi
 
-
-      # (6) Pull Request 作成
+      # (6) PRは conflict==true なら必ず出す（たとえGit差分なしでもdiff_log.txtに差分があるなら）
       - name: Create Pull Request if conflicts exist
-        if: steps.diff_check.outputs.conflict == 'true' && steps.commit_ftp.outputs.pushed == 'true'
+        if: steps.diff_check.outputs.conflict == 'true'
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -89,8 +86,9 @@ jobs:
           base: main
           title: "FTPとの差分あり。不要ファイルを整理・マージしてください"
           body: |
-            FTPサーバとの間に差分が見つかりました。
-            `diff_log.txt` をご確認の上、不要ファイルの削除やマージをお願いいたします。
+            FTP上のファイルとGitHub上の`public_html`に差分が見つかりました。
+            `diff_log.txt` を確認のうえ、不要ファイルの整理・マージをお願いします。
+
 
 
   # (7) 競合がない場合はそのまま自動デプロイ
