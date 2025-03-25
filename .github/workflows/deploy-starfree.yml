@@ -41,15 +41,14 @@ jobs:
       - name: Compare local and FTP files
         id: diff_check
         run: |
-          # ftp_latest と public_html を比較し、結果を diff_log.txt に出力
-          diff -rq ./ftp_latest/ ./public_html/ > diff_log.txt || true
-
-          # diff_log.txt が空なら差分なし (conflict=false)
+          mkdir -p ./ftp_latest ./public_html
+          rsync -rcn --delete ./ftp_latest/ ./public_html/ > diff_log.txt || true
           if [ -s diff_log.txt ]; then
-            echo "conflict=true" >> "$GITHUB_OUTPUT"
+            echo "conflict=true" >> $GITHUB_OUTPUT
           else
-            echo "conflict=false" >> "$GITHUB_OUTPUT"
+            echo "conflict=false" >> $GITHUB_OUTPUT
           fi
+
 
       # (5) 差分がある場合、ブランチを作成（差分がGit的にあった場合のみコミット）
       - name: Commit FTP changes to a new branch if conflicts exist
