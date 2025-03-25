@@ -107,5 +107,4 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./public_html/
-          server-dir: /kasukou2025.stars.ne.jp/public_html
-          only-newer: true
+          server-dir: /kasukou2025.stars.ne.jp/public_html/
