@@ -30,12 +30,18 @@ jobs:
 
       - name: Commit snapshot to ftp-latest branch
         run: |
-          git checkout -B ftp-latest
-          rm -rf public_html/*       # 古いファイルをクリア
-          cp -r ./ftp_latest/* ./public_html/
-          git add public_html
-          git commit -m "📥 Sync FTP snapshot $(date '+%Y-%m-%d %H:%M:%S')" || echo "No changes"
-          git push --force origin ftp-latest
+            git checkout -B ftp-latest
+
+            # ← ここでユーザ情報をセット（必須）
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+
+            rm -rf public_html/*
+            cp -r ./ftp_latest/* ./public_html/
+            git add public_html
+
+            git commit -m "📥 Sync FTP snapshot $(date '+%Y-%m-%d %H:%M:%S')" || echo "No changes"
+            git push --force origin ftp-latest
 
       - name: Create or update Pull Request
         uses: peter-evans/create-pull-request@v5
