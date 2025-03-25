@@ -1,0 +1,7 @@
+Only in ./public_html/: .htaccess
+Only in ./public_html/: .user.ini
+Files ./ftp_backup/coatbokking/NEWFORMAT/2025/coatbooking05-onuma.html and ./public_html/coatbokking/NEWFORMAT/2025/coatbooking05-onuma.html differ
+Files ./ftp_backup/coatbokking/NEWFORMAT/2025/coatbooking05-tatenuma.html and ./public_html/coatbokking/NEWFORMAT/2025/coatbooking05-tatenuma.html differ
+Files ./ftp_backup/coatbokking/NEWFORMAT/2025/coatbooking06-onuma.html and ./public_html/coatbokking/NEWFORMAT/2025/coatbooking06-onuma.html differ
+Files ./ftp_backup/coatbokking/NEWFORMAT/2025/coatbooking06-tatenuma.html and ./public_html/coatbokking/NEWFORMAT/2025/coatbooking06-tatenuma.html differ
+Only in ./public_html/: index_test.html
