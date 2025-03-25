@@ -30,7 +30,7 @@ jobs:
         run: |
           lftp -c "
           open -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_HOST }};
-          mirror --verbose --only-newer --parallel=2 /kasukou2025.stars.ne.jp/public_html ./ftp_latest/
+          mirror --verbose --only-newer --parallel=2 /kasukou2025.stars.ne.jp/public_html/ ./ftp_latest/
           bye"
         shell: bash
 
