@@ -41,13 +41,20 @@ jobs:
       - name: Compare local and FTP files
         id: diff_check
         run: |
-          mkdir -p ./ftp_latest ./public_html
+          # 内容ベースで dry-run 比較 (checksum + 再帰 + delete)
           rsync -rcn --delete ./ftp_latest/ ./public_html/ > diff_log.txt || true
+
+          # diff_log.txt に何か出力があれば「実質差分あり」
           if [ -s diff_log.txt ]; then
             echo "conflict=true" >> $GITHUB_OUTPUT
           else
             echo "conflict=false" >> $GITHUB_OUTPUT
           fi
+
+      - name: Debug diff log
+        if: steps.diff_check.outputs.conflict == 'true'
+        run: cat diff_log.txt
+
 
 
       # (5) 差分がある場合、ブランチを作成（差分がGit的にあった場合のみコミット）
@@ -97,14 +104,13 @@ jobs:
     if: needs.fetch-ftp.outputs.conflict == 'false'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Deploy via FTP (Only changed files)
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - uses: actions/checkout@v3
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4
         with:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./public_html/
           server-dir: /kasukou2025.stars.ne.jp/public_html/
+
