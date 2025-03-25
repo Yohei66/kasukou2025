@@ -56,54 +56,42 @@ jobs:
         id: commit_ftp
         if: steps.diff_check.outputs.conflict == 'true'
         run: |
-          # Gitユーザー設定
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions@github.com"
 
-          # 日時入りのブランチ名
           DATE_STR=$(date '+%Y%m%d-%H%M%S')
           BRANCH_NAME="ftp-conflict-${DATE_STR}"
           echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
 
-          # 新ブランチを作成
           git checkout -b "$BRANCH_NAME"
 
-          echo "==== [Before copy] public_html ===="
-          ls -la ./public_html/ || true
-
-          echo "==== [Files to copy] ftp_latest ===="
-          ls -la ./ftp_latest/ || true
-
-          # ftp_latest の中身を public_html に上書きコピー
           cp -vr ./ftp_latest/* ./public_html/ || true
 
-          echo "==== [After copy] public_html ===="
-          ls -la ./public_html/ || true
-
-          # 変更をステージング
           git add .
 
-          # ステージング済みに差分がある場合のみコミット＆Push
           if ! git diff --cached --quiet; then
-            git commit -m "FTPのファイルを取り込み (${DATE_STR})。手動で不要ファイルの整理・コンフリクトを解消してください。"
+            git commit -m "FTPのファイルを取り込み (${DATE_STR})"
             git push origin "$BRANCH_NAME"
+            echo "pushed=true" >> "$GITHUB_OUTPUT"
           else
-            echo "差分がありません。コミットとPushをスキップします。"
+            echo "差分がないため、コミットとPushをスキップします。"
+            echo "pushed=false" >> "$GITHUB_OUTPUT"
           fi
+
 
       # (6) Pull Request 作成
       - name: Create Pull Request if conflicts exist
-        if: steps.diff_check.outputs.conflict == 'true'
+        if: steps.diff_check.outputs.conflict == 'true' && steps.commit_ftp.outputs.pushed == 'true'
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          # 上のコミットステップで生成したブランチ名を参照
           branch: ${{ steps.commit_ftp.outputs.branch_name }}
           base: main
           title: "FTPとの差分あり。不要ファイルを整理・マージしてください"
           body: |
             FTPサーバとの間に差分が見つかりました。
             `diff_log.txt` をご確認の上、不要ファイルの削除やマージをお願いいたします。
+
 
   # (7) 競合がない場合はそのまま自動デプロイ
   deploy:
