@@ -12,19 +12,24 @@ permissions:
 jobs:
   fetch-ftp:
     runs-on: ubuntu-latest
+
     outputs:
       conflict: ${{ steps.diff_check.outputs.conflict }}
 
     steps:
+      # (1) GitHubリポジトリをチェックアウト
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
+          # 差分コミット時に履歴の制限でエラーが出ないようにする
           fetch-depth: 0
 
+      # (2) lftpインストール
       - name: Install lftp
         run: sudo apt-get install -y lftp
 
-      - name: Fetch latest files from FTP before deploying
+      # (3) FTPファイルをダウンロード (public_html/ の中身だけ)
+      - name: Fetch latest files from FTP
         run: |
           lftp -c "
           open -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_HOST }};
@@ -32,61 +37,75 @@ jobs:
           bye"
         shell: bash
 
+      # (4) 差分比較
       - name: Compare local and FTP files
         id: diff_check
         run: |
+          # ftp_latest と public_html を比較し、結果を diff_log.txt に出力
           diff -rq ./ftp_latest/ ./public_html/ > diff_log.txt || true
+
+          # diff_log.txt が空なら差分なし (conflict=false)
           if [ -s diff_log.txt ]; then
-            echo "conflict=true" >> $GITHUB_OUTPUT
+            echo "conflict=true" >> "$GITHUB_OUTPUT"
           else
-            echo "conflict=false" >> $GITHUB_OUTPUT
+            echo "conflict=false" >> "$GITHUB_OUTPUT"
           fi
 
+      # (5) 差分がある場合のみ、ブランチ作成＆コミット
       - name: Commit FTP changes to a new branch if conflicts exist
         id: commit_ftp
         if: steps.diff_check.outputs.conflict == 'true'
         run: |
+          # Gitユーザー設定
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions@github.com"
 
+          # 日時入りのブランチ名
           DATE_STR=$(date '+%Y%m%d-%H%M%S')
           BRANCH_NAME="ftp-conflict-${DATE_STR}"
           echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
 
+          # 新ブランチを作成
           git checkout -b "$BRANCH_NAME"
 
-          echo "== コピー前 public_html =="
-          ls -la ./public_html/
+          echo "==== [Before copy] public_html ===="
+          ls -la ./public_html/ || true
 
-          echo "== コピーする ftp_latest の中身 =="
-          ls -la ./ftp_latest/
+          echo "==== [Files to copy] ftp_latest ===="
+          ls -la ./ftp_latest/ || true
 
+          # ftp_latest の中身を public_html に上書きコピー
           cp -vr ./ftp_latest/* ./public_html/ || true
 
-          echo "== コピー後 public_html =="
-          ls -la ./public_html/
+          echo "==== [After copy] public_html ===="
+          ls -la ./public_html/ || true
 
+          # 変更をステージング
           git add .
 
+          # ステージング済みに差分がある場合のみコミット＆Push
           if ! git diff --cached --quiet; then
             git commit -m "FTPのファイルを取り込み (${DATE_STR})。手動で不要ファイルの整理・コンフリクトを解消してください。"
             git push origin "$BRANCH_NAME"
           else
-            echo "差分がないため、コミットとプッシュをスキップします。"
+            echo "差分がありません。コミットとPushをスキップします。"
           fi
 
+      # (6) Pull Request 作成
       - name: Create Pull Request if conflicts exist
         if: steps.diff_check.outputs.conflict == 'true'
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          # 上のコミットステップで生成したブランチ名を参照
           branch: ${{ steps.commit_ftp.outputs.branch_name }}
           base: main
           title: "FTPとの差分あり。不要ファイルを整理・マージしてください"
           body: |
             FTPサーバとの間に差分が見つかりました。
-            `diff_log.txt` を確認して、不要ファイルの整理やマージをお願いします。
+            `diff_log.txt` をご確認の上、不要ファイルの削除やマージをお願いいたします。
 
+  # (7) 競合がない場合はそのまま自動デプロイ
   deploy:
     needs: fetch-ftp
     if: needs.fetch-ftp.outputs.conflict == 'false'
