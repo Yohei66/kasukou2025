@@ -21,13 +21,19 @@ jobs:
       - name: Install lftp
         run: sudo apt-get install -y lftp
 
-      - name: Fetch FTP snapshot
+      - name: Fetch FTP snapshot (debug)
         run: |
           mkdir -p ftp_latest
           lftp -c "
             open -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_HOST }};
-            mirror --verbose --only-newer --parallel=2 /kasukou2025.stars.ne.jp/public_html/ ftp_latest
+            ls /kasukou2025.stars.ne.jp/public_html/
+            mirror --verbose --debug --only-newer --parallel=2 /kasukou2025.stars.ne.jp/public_html/ ftp_latest
             bye"
+      - name: Show ftp_latest contents
+        run: |
+          echo "=== FTP → ftp_latest ==="
+          ls -la ftp_latest || echo "ftp_latest is empty"
+
 
 
       - name: Commit snapshot to ftp-latest branch
