@@ -40,7 +40,7 @@ jobs:
           mkdir -p ftp_latest
           lftp -c "
             open -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_HOST }};
-            mirror --verbose --only-newer --parallel=2 /kasukou2025.stars.ne.jp/public_html/ ftp_latest;
+            mirror --verbose --parallel=2 /kasukou2025.stars.ne.jp/public_html/ ftp_latest;
             bye"
 
       - name: Commit snapshot to ftp-latest branch
