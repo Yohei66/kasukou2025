@@ -3,7 +3,7 @@ name: Sync FTP to GitHub
 on:
   workflow_dispatch:    # 手動実行もOK。cron指定も可能
   schedule:
-    - cron: '0 0 * * *' # 毎日0時にも実行
+    - cron: '0 0 * * *' # 毎日0時に実行
 
 permissions:
   contents: write
@@ -21,19 +21,44 @@ jobs:
       - name: Install lftp
         run: sudo apt-get install -y lftp
 
+      # 以下はデバッグ用ステップ（問題がなくなったら不要）
+      # - name: Fetch FTP snapshot (debug)
+      #   run: |
+      #     mkdir -p ftp_latest
+      #     lftp -d -c "
+      #       open -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_HOST }};
+      #       ls /kasukou2025.stars.ne.jp/public_html/
+      #       mirror --verbose --only-newer --parallel=2 /kasukou2025.stars.ne.jp/public_html/ ftp_latest
+      #       bye"
+      # - name: Show ftp_latest contents
+      #   run: |
+      #     echo "=== FTP → ftp_latest ==="
+      #     ls -la ftp_latest || echo "ftp_latest is empty"
+
       - name: Fetch FTP snapshot
         run: |
+          mkdir -p ftp_latest
           lftp -c "
             open -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_HOST }};
-            mirror --verbose --only-newer --parallel=2 /kasukou2025.stars.ne.jp/public_html/ ./ftp_latest/
+            mirror --verbose --parallel=2 /kasukou2025.stars.ne.jp/public_html/ ftp_latest;
             bye"
 
       - name: Commit snapshot to ftp-latest branch
         run: |
           git checkout -B ftp-latest
-          rm -rf public_html/*       # 古いファイルをクリア
-          cp -r ./ftp_latest/* ./public_html/
-          git add public_html
+
+          # Gitコミット用ユーザ設定
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # ルート直下の既存ファイルを全部削除（.git と .github と ftp_latest は残す）
+          find . -mindepth 1 -maxdepth 1 \
+            ! -name '.git' ! -name '.github' ! -name 'ftp_latest' -exec rm -rf {} +
+
+          # ftp_latest の中身（隠しファイル含む）をルートにコピー
+          cp -r ./ftp_latest/. ./
+
+          git add .
           git commit -m "📥 Sync FTP snapshot $(date '+%Y-%m-%d %H:%M:%S')" || echo "No changes"
           git push --force origin ftp-latest
 
