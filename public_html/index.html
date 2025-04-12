@@ -71,8 +71,7 @@
               <a href="coatbokking/NEWFORMAT/2025/coatbooking04-onuma.html">コート予約状況</a>
             </li>
             <li><a href="./gyouji-SS.html">行事予定表</a></li>
-            <li>
-              <a href="http://kasukabekoshiki.bbs.fc2.com/">何でも伝言板</a>
+            <li><a href="http://kasukabekoshiki.bbs.fc2.com/">何でも伝言板</a>
             </li>
             <li><a href="http://www.k-t-a.org">春日部市テニス協会</a></li>
             <li><a href="https://sta-tennis.org/">埼玉県テニス協会</a></li>
@@ -126,6 +125,25 @@
     </div>
     <!-- .main-container -->
   </div>
+
+  <!-- コート予約リンクの動的変更スクリプトを追加 -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // 現在の年月を取得
+      const date = new Date();
+      const year = date.getFullYear();
+      const month = ('0' + (date.getMonth() + 1)).slice(-2); // 2桁にフォーマット
+
+      // リンクを動的に生成
+      const bookingLink = `coatbokking/NEWFORMAT/${year}/coatbooking${month}-onuma.html`;
+
+      // 対象のリンク要素を取得して変更
+      const anchor = document.querySelector('a[href^="coatbokking/NEWFORMAT/"]');
+      if (anchor) {
+        anchor.setAttribute('href', bookingLink);
+      }
+    });
+  </script>
 </body>
 
 </html>
