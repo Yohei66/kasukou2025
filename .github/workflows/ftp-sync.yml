@@ -42,6 +42,16 @@ jobs:
             open -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_HOST }};
             mirror --verbose --parallel=2 /kasukou2025.stars.ne.jp/public_html/ ftp_latest;
             bye"
+      
+      - name: Debug list NEWFORMAT dir
+        run: |
+          lftp -c "
+            open -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_HOST }};
+            pwd
+            ls
+            ls /kasukou2025.stars.ne.jp/public_html/coatbokking/NEWFORMAT
+            bye"
+
 
       - name: Commit snapshot to ftp-latest branch
         run: |
