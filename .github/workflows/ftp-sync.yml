@@ -1,9 +1,9 @@
 name: Sync FTP to GitHub
 
 on:
-  workflow_dispatch:    # 手動実行もOK。cron指定も可能
+  workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *' # 毎日0時に実行
+    - cron: '0 0 * * *'
 
 permissions:
   contents: write
@@ -14,77 +14,39 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout main
+      - name: Checkout repo
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: Install lftp
-        run: sudo apt-get install -y lftp
-
-      # 以下はデバッグ用ステップ（問題がなくなったら不要）
-      # - name: Fetch FTP snapshot (debug)
-      #   run: |
-      #     mkdir -p ftp_latest
-      #     lftp -d -c "
-      #       open -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_HOST }};
-      #       ls /kasukou2025.stars.ne.jp/public_html/
-      #       mirror --verbose --only-newer --parallel=2 /kasukou2025.stars.ne.jp/public_html/ ftp_latest
-      #       bye"
-      # - name: Show ftp_latest contents
-      #   run: |
-      #     echo "=== FTP → ftp_latest ==="
-      #     ls -la ftp_latest || echo "ftp_latest is empty"
       - name: Prepare ftp-latest branch
         run: |
           git checkout -B ftp-latest
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Fetch FTP snapshot
+      - name: Install lftp
+        run: sudo apt-get install -y lftp
+
+      - name: Fetch FTP snapshot into tmp dir
         run: |
+          rm -rf ftp_latest
           mkdir -p ftp_latest
           lftp -c "
             open -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_HOST }};
-            mirror --verbose --parallel=2 /kasukou2025.stars.ne.jp/public_html/ ftp_latest;
-            bye"
-      
-      - name: Debug list NEWFORMAT dir
-        run: |
-          lftp -c "
-            open -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_HOST }};
-            pwd
-            ls
-            ls /kasukou2025.stars.ne.jp/public_html/coatbokking/NEWFORMAT
+            mirror --verbose --parallel=2 /kasukou2025.stars.ne.jp/public_html/ ftp_latest/public_html;
             bye"
 
-
-      - name: Commit snapshot to ftp-latest branch
+      - name: Replace working tree with FTP snapshot
         run: |
-          git checkout -B ftp-latest
-
-          # Gitコミット用ユーザ設定
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # ルート直下の既存ファイルを全部削除（.git と .github と ftp_latest は残す）
+          # .git と .github だけ残して他は全削除
           find . -mindepth 1 -maxdepth 1 \
-            ! -name '.git' ! -name '.github' ! -name 'ftp_latest' -exec rm -rf {} +
+            ! -name '.git' ! -name '.github' -exec rm -rf {} +
 
-          # ftp_latest の中身（隠しファイル含む）をルートにコピー
-          cp -r ./ftp_latest/. ./
+          # ftp_latest の中身をルートに展開（public_html など）
+          cp -r ftp_latest/. ./
+          rm -rf ftp_latest
 
           git add .
           git commit -m "📥 Sync FTP snapshot $(date '+%Y-%m-%d %H:%M:%S')" || echo "No changes"
           git push --force origin ftp-latest
-
-      - name: Create or update Pull Request
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ftp-latest
-          base: main
-          title: "🔄 Sync FTP → main"
-          body: |
-            FTPサーバの最新スナップショットを取り込みました。
-            差分を確認し、問題なければマージしてください。
