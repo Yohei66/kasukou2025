@@ -34,6 +34,11 @@ jobs:
       #   run: |
       #     echo "=== FTP → ftp_latest ==="
       #     ls -la ftp_latest || echo "ftp_latest is empty"
+      - name: Prepare ftp-latest branch
+        run: |
+          git checkout -B ftp-latest
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Fetch FTP snapshot
         run: |
