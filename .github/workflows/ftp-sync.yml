@@ -38,14 +38,19 @@ jobs:
 
       - name: Replace working tree with FTP snapshot
         run: |
-          # .git と .github だけ残して他は全削除
+          # .git / .github / ftp_latest だけ残して他は全削除
           find . -mindepth 1 -maxdepth 1 \
-            ! -name '.git' ! -name '.github' -exec rm -rf {} +
-
-          # ftp_latest の中身をルートに展開（public_html など）
+            ! -name '.git' ! -name '.github' ! -name 'ftp_latest' -exec rm -rf {} +
+      
+          # デバッグ用：ftp_latest があるか確認（不要になったら消してOK）
+          ls -la
+          ls -la ftp_latest
+      
+          # ftp_latest の中身をルートに展開
           cp -r ftp_latest/. ./
           rm -rf ftp_latest
-
+      
           git add .
           git commit -m "📥 Sync FTP snapshot $(date '+%Y-%m-%d %H:%M:%S')" || echo "No changes"
           git push --force origin ftp-latest
+
