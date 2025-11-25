@@ -265,6 +265,66 @@ span a:hover::before {
   display: block;
   margin: 1em auto;
 }
+/* 本日のコート予約状況 */
+.today-booking {
+  margin-top: 1rem;
+  padding: 8px;
+  background: var(--background-link);
+  border-radius: 20px;
+}
+
+
+/* コート予約表示用スタイル */
+.today-booking {
+  margin-top: 1rem;
+  padding: 8px;
+  background-color: var(--background-link);
+}
+
+.today-booking h3 {
+  margin: 0 0 8px 0;
+}
+
+.booking-location {
+  margin-bottom: 0.75rem;
+}
+
+.booking-location-title {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: bold;
+}
+
+.booking-table {
+  border-collapse: collapse;
+  margin-bottom: 0.5rem;
+  width: 100%;
+}
+
+.booking-table th,
+.booking-table td {
+  border: 1px solid #ddd;
+  padding: 4px 8px;
+  text-align: center;
+}
+
+.booking-table th {
+  background-color: #f0f0f0;
+  font-weight: normal;
+}
+
+.booking-table td:first-child,
+.booking-table th:first-child {
+  text-align: center;
+}
+
+.booking-no-data {
+  margin: 0;
+}
+
+.booking-no-data a {
+  margin-left: 6px;
+}
 
 /* 下部の説明 */
 .explain-area {
