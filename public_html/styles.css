@@ -350,10 +350,11 @@ span a:hover::before {
 .menu-icon {
   display: none;
   font-size: 24px;
-  font-weight:500;
+  font-weight: 500;
   cursor: pointer;
   background: none;
-  position: absolute;
+  /* make hamburger fixed so it stays visible while scrolling */
+  position: fixed;
   top: 10px;
   left: 10px;
   z-index: 1001;
@@ -362,7 +363,7 @@ span a:hover::before {
 /* メニューのデフォルト表示 */
 .left-menu {
   width: 180px;
-  background-color: #f6f1de;
+  background-color:var(--background-link);
   padding: 1em;
   box-sizing: border-box;
 }
@@ -380,6 +381,17 @@ span a:hover::before {
   }
   .menu-icon {
     display: block; /* ハンバーガーボタンを表示 */
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1002; /* above the sliding left-menu */
+
+  }
+
+  /* avoid the fixed hamburger overlapping the mobile title */
+  .site-header-mobile .title-big {
+    padding-left: 56px;
+    box-sizing: border-box;
   }
 
   .left-menu {
@@ -388,7 +400,7 @@ span a:hover::before {
     left: -100%;
     width: 250px;
     height: 100%;
-    background-color: #f6f1de;
+    background-color: var(--background-link);
     padding: 1em;
     transition: left 0.3s ease;
     z-index: 1000;
