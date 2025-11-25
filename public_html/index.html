@@ -112,6 +112,12 @@
           </div>
         </div>
 
+
+        <!-- 本日のコート予約状況（自動取得表示） -->
+        <div id="today-booking" class="today-booking">
+          <!-- JS が本日分の予約をここに差し込みます -->
+        </div>
+
         <!-- 下部の説明など -->
         <div class="explain-area">
           <p class="search-note">検索は　「春日部硬式」　で！</p>
@@ -128,19 +134,152 @@
   <!-- コート予約リンクの動的変更スクリプトを追加 -->
   <script>
     document.addEventListener('DOMContentLoaded', function () {
-      // 現在の年月を取得
+      // --- 既存: 月別リンクを当月に差し替え ---
+      // 正常な今日の日付を使う
       const date = new Date();
+      // テストで固定日付にしたい場合は下のようにコメントを外して使えます:
+      // const date = new Date('2025-12-25T00:00:00'); // テスト用固定日付
       const year = date.getFullYear();
-      const month = ('0' + (date.getMonth() + 1)).slice(-2); // 2桁にフォーマット
+      const monthNum = date.getMonth() + 1;
+      const month2 = ('0' + monthNum).slice(-2); // 2桁にフォーマット
 
-      // リンクを動的に生成
-      const bookingLink = `coatbokking/NEWFORMAT/${year}/coatbooking${month}-onuma.html`;
-
-      // 対象のリンク要素を取得して変更
+      const bookingLink = `coatbokking/NEWFORMAT/${year}/coatbooking${month2}-onuma.html`;
       const anchor = document.querySelector('a[href^="coatbokking/NEWFORMAT/"]');
       if (anchor) {
         anchor.setAttribute('href', bookingLink);
       }
+
+      // --- 新規: 本日のコート予約状況を月別ページから取得して表示 ---
+      const todayDiv = document.getElementById('today-booking');
+      if (!todayDiv) return;
+
+      const locations = [
+        { key: 'onuma', label: '大沼' },
+        { key: 'tatenuma', label: '立沼' }
+      ];
+
+      function bookingPath(locKey) {
+        return `coatbokking/NEWFORMAT/${year}/coatbooking${month2}-${locKey}.html`;
+      }
+
+      async function fetchAndParse(loc) {
+        try {
+          const resp = await fetch(bookingPath(loc.key));
+          if (!resp.ok) throw new Error('fetch failed');
+          const text = await resp.text();
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(text, 'text/html');
+          const table = doc.querySelector('table.auto-style27');
+          if (!table) return { found: false };
+
+          const month = date.getMonth() + 1;
+          // const month = 12;
+          const day = date.getDate();
+          // const day = 5;
+          const dateRe = new RegExp(month + '月\\s*' + day + '日');
+            
+          const trs = Array.from(table.querySelectorAll('tr'));
+          for (let i = 0; i < trs.length; i++) {
+            const tds = trs[i].querySelectorAll('td');
+            if (!tds || tds.length === 0) continue;
+            for (let j = 0; j < tds.length; j++) {
+              if (dateRe.test(tds[j].textContent)) {
+                const trA = trs[i];
+                const trB = trs[i + 1];
+                const tdsA = trA.querySelectorAll('td');
+                const tdsB = trB ? trB.querySelectorAll('td') : [];
+
+                const courtA = (tdsA[2] && tdsA[2].textContent.trim()) || 'A';
+                const timesA = Array.from(tdsA).slice(3, 7).map(td => td ? td.textContent.trim() : '');
+
+                const courtB = (tdsB[0] && tdsB[0].textContent.trim()) || 'B';
+                const timesB = Array.from(tdsB).slice(1, 5).map(td => td ? td.textContent.trim() : '');
+
+                return { found: true, courtA, timesA, courtB, timesB };
+              }
+            }
+          }
+          return { found: false };
+        } catch (e) {
+          return { error: true };
+        }
+      }
+
+      // コート予約状況テーブルを作成 
+      function makeTableForResult(res) {
+        const tbl = document.createElement('table');
+        tbl.className = 'booking-table';
+        const header = document.createElement('tr');
+        ['コート', '9-11', '11-13', '13-15', '15-17'].forEach(h => {
+          const th = document.createElement('th');
+          th.textContent = h;
+          header.appendChild(th);
+        });
+        tbl.appendChild(header);
+
+        const trA = document.createElement('tr');
+        const tdCourtA = document.createElement('td');
+        tdCourtA.textContent = res.courtA;
+        trA.appendChild(tdCourtA);
+        res.timesA.forEach(t => {
+          const td = document.createElement('td');
+          td.textContent = t;
+          trA.appendChild(td);
+        });
+        tbl.appendChild(trA);
+
+        const trB = document.createElement('tr');
+        const tdCourtB = document.createElement('td');
+        tdCourtB.textContent = res.courtB;
+        trB.appendChild(tdCourtB);
+        res.timesB.forEach(t => {
+          const td = document.createElement('td');
+          td.textContent = t;
+          trB.appendChild(td);
+        });
+        tbl.appendChild(trB);
+        return tbl;
+      }
+
+      async function render() {
+        // 今日の日付を「YYYY年M月D日（曜日）」フォーマットで表示
+        const days = ['日', '月', '火', '水', '木', '金', '土'];
+        const dayOfWeek = days[date.getDay()];
+        const dateStr = `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日（${dayOfWeek}）`;
+        
+        todayDiv.innerHTML = `<h3>本日（${dateStr}）のコート予約状況</h3><div id="booking-list">読み込み中…</div>`;
+        const list = document.getElementById('booking-list');
+        const results = await Promise.all(locations.map(l => fetchAndParse(l)));
+        list.innerHTML = '';
+        locations.forEach((loc, idx) => {
+          const res = results[idx];
+          const wrap = document.createElement('div');
+          wrap.className = 'booking-location';
+          const title = document.createElement('strong');
+          title.className = 'booking-location-title';
+          title.textContent = loc.label;
+          wrap.appendChild(title);
+          if (res && res.found) {
+            wrap.appendChild(makeTableForResult(res));
+          } else {
+            const p = document.createElement('p');
+            p.className = 'booking-no-data';
+            if (res && res.error) {
+              p.textContent = '読み込みに失敗しました。';
+            } else {
+              p.textContent = '本日は予約なしです。';
+            }
+            const a = document.createElement('a');
+            a.href = bookingPath(loc.key);
+            a.textContent = ' 月別ページ';
+            p.appendChild(a);
+            wrap.appendChild(p);
+          }
+          list.appendChild(wrap);
+        });
+      }
+
+      render();
     });
   </script>
 </body>
