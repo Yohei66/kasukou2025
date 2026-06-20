@@ -145,6 +145,20 @@
       const year = date.getFullYear();
       const monthNum = date.getMonth() + 1;
       const month2 = ('0' + monthNum).slice(-2); // 2桁にフォーマット
+      const day2 = ('0' + date.getDate()).slice(-2);
+      const dateKey = `${year}-${month2}-${day2}`; // 中止連絡APIで使う YYYY-MM-DD
+
+      // --- 中止連絡: 理由の定義（API値 -> 表示） ---
+      const CANCEL_REASONS = [
+        { key: 'rain', label: '☔ 雨' },
+        { key: 'heat', label: '🥵 熱中症警戒' },
+        { key: 'thunder', label: '⚡ 雷' },
+        { key: 'wind', label: '💨 強風' },
+        { key: 'other', label: '✏️ その他' },
+      ];
+      const reasonLabel = k => (CANCEL_REASONS.find(r => r.key === k) || {}).label || k;
+      // 各回の取得結果を保持（セルへ中止状態を重ねるため）
+      let cancelMap = {}; // { onuma: { A: { '0': {reason,name,...} } }, tatenuma: {...} }
 
       const bookingLink = `coatbokking/NEWFORMAT/${year}/coatbooking${month2}-onuma.html`;
       const anchor = document.querySelector('a[href^="coatbokking/NEWFORMAT/"]');
@@ -208,39 +222,89 @@
         }
       }
 
-      // コート予約状況テーブルを作成 
-      function makeTableForResult(res) {
+      const SLOT_LABELS = ['9-11', '11-13', '13-15', '15-17'];
+
+      // 中止状態の取得（API）。失敗しても表示は続行する
+      async function fetchCancelStatus() {
+        try {
+          const resp = await fetch(`api/cancel.php?date=${dateKey}`, { cache: 'no-store' });
+          if (!resp.ok) return {};
+          const j = await resp.json();
+          return (j && j.ok && j.cancellations) ? j.cancellations : {};
+        } catch (e) {
+          return {};
+        }
+      }
+
+      function getEntry(locKey, court, slot) {
+        const c = cancelMap[locKey];
+        const key = 'slot' + slot; // サーバー側のキーに合わせる
+        return c && c[court] && c[court][key] ? c[court][key] : null;
+      }
+
+      // 1つの時間帯セルを作る（クリックで中止登録／確認）
+      function makeSlotCell(locKey, locLabel, court, slot, text) {
+        const td = document.createElement('td');
+        td.className = 'slot-cell';
+        td.dataset.loc = locKey;
+        td.dataset.locLabel = locLabel;
+        td.dataset.court = court;
+        td.dataset.slot = String(slot);
+        applyCellState(td, text);
+        td.addEventListener('click', () => onSlotClick(td));
+        return td;
+      }
+
+      // 確保済み（中止できる）マスかどうか。〇/○ のみ対象（× や空欄は不可）
+      function isHeld(text) {
+        const t = (text || '').trim();
+        return t === '〇' || t === '○';
+      }
+
+      // セルの見た目を最新の中止状態に合わせて更新
+      function applyCellState(td, originalText) {
+        if (originalText !== undefined) td.dataset.orig = originalText || '';
+        const orig = td.dataset.orig || '';
+        const entry = getEntry(td.dataset.loc, td.dataset.court, Number(td.dataset.slot));
+        const held = isHeld(orig);
+        td.classList.toggle('cancelled', !!entry);
+        td.classList.toggle('cancellable', held && !entry); // クリックで中止登録できる
+        td.classList.toggle('inert', !held && !entry);       // ×等は操作不可
+        if (entry) {
+          td.innerHTML = '';
+          const badge = document.createElement('span');
+          badge.className = 'cell-cancelled-badge';
+          badge.textContent = '中止';
+          td.appendChild(badge);
+          td.title = `中止（${reasonLabel(entry.reason)}） キャンセル者:${entry.name}`;
+        } else {
+          td.textContent = orig;
+          td.title = held ? 'クリックで中止登録' : '';
+        }
+      }
+
+      // コート予約状況テーブルを作成
+      function makeTableForResult(res, locKey, locLabel) {
         const tbl = document.createElement('table');
         tbl.className = 'booking-table';
         const header = document.createElement('tr');
-        ['コート', '9-11', '11-13', '13-15', '15-17'].forEach(h => {
+        ['コート', ...SLOT_LABELS].forEach(h => {
           const th = document.createElement('th');
           th.textContent = h;
           header.appendChild(th);
         });
         tbl.appendChild(header);
 
-        const trA = document.createElement('tr');
-        const tdCourtA = document.createElement('td');
-        tdCourtA.textContent = res.courtA;
-        trA.appendChild(tdCourtA);
-        res.timesA.forEach(t => {
-          const td = document.createElement('td');
-          td.textContent = t;
-          trA.appendChild(td);
+        [['A', res.courtA, res.timesA], ['B', res.courtB, res.timesB]].forEach(([court, courtName, times]) => {
+          const tr = document.createElement('tr');
+          const tdCourt = document.createElement('td');
+          tdCourt.textContent = courtName;
+          tr.appendChild(tdCourt);
+          times.forEach((t, slot) => {
+            tr.appendChild(makeSlotCell(locKey, locLabel, court, slot, t));
+          });
+          tbl.appendChild(tr);
         });
-        tbl.appendChild(trA);
-
-        const trB = document.createElement('tr');
-        const tdCourtB = document.createElement('td');
-        tdCourtB.textContent = res.courtB;
-        trB.appendChild(tdCourtB);
-        res.timesB.forEach(t => {
-          const td = document.createElement('td');
-          td.textContent = t;
-          trB.appendChild(td);
-        });
-        tbl.appendChild(trB);
         return tbl;
       }
 
@@ -249,10 +313,20 @@
         const days = ['日', '月', '火', '水', '木', '金', '土'];
         const dayOfWeek = days[date.getDay()];
         const dateStr = `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日（${dayOfWeek}）`;
-        
-        todayDiv.innerHTML = `<h3>本日（${dateStr}）のコート予約状況</h3><div id="booking-list">読み込み中…</div>`;
+
+        todayDiv.innerHTML =
+          `<h3>本日（${dateStr}）のコート予約状況</h3>` +
+          `<p class="cancel-help">雨・熱中症・雷・強風などで中止する場合は、下の表の<strong>時間帯のマス</strong>をクリックしてください（A面・B面・時間帯ごとに登録できます）。中止済みのマスをクリックするとキャンセルした人を確認できます。</p>` +
+          `<div id="booking-list">読み込み中…</div>`;
         const list = document.getElementById('booking-list');
-        const results = await Promise.all(locations.map(l => fetchAndParse(l)));
+
+        // 予約状況と中止状況を並行取得
+        const [results, cancellations] = await Promise.all([
+          Promise.all(locations.map(l => fetchAndParse(l))),
+          fetchCancelStatus(),
+        ]);
+        cancelMap = cancellations || {};
+
         list.innerHTML = '';
         locations.forEach((loc, idx) => {
           const res = results[idx];
@@ -263,7 +337,7 @@
           title.textContent = loc.label;
           wrap.appendChild(title);
           if (res && res.found) {
-            wrap.appendChild(makeTableForResult(res));
+            wrap.appendChild(makeTableForResult(res, loc.key, loc.label));
           } else {
             const p = document.createElement('p');
             p.className = 'booking-no-data';
@@ -280,6 +354,156 @@
           }
           list.appendChild(wrap);
         });
+      }
+
+      // ===== 中止連絡ダイアログ =====
+      const NAME_STORE_KEY = 'kasukou_cancel_name';
+
+      function closeDialog() {
+        const ov = document.getElementById('cancel-overlay');
+        if (ov) ov.remove();
+      }
+
+      function buildOverlay() {
+        closeDialog();
+        const overlay = document.createElement('div');
+        overlay.id = 'cancel-overlay';
+        overlay.className = 'cancel-overlay';
+        overlay.addEventListener('click', e => { if (e.target === overlay) closeDialog(); });
+        const box = document.createElement('div');
+        box.className = 'cancel-dialog';
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
+        return box;
+      }
+
+      function slotInfoLine(td) {
+        return `${td.dataset.locLabel}・${td.dataset.court}面・${SLOT_LABELS[Number(td.dataset.slot)]}`;
+      }
+
+      function onSlotClick(td) {
+        const entry = getEntry(td.dataset.loc, td.dataset.court, Number(td.dataset.slot));
+        if (entry) {
+          openViewDialog(td, entry);
+        } else if (isHeld(td.dataset.orig)) {
+          openCancelDialog(td);
+        }
+        // × など確保していないマスは何もしない
+      }
+
+      // 中止登録フォーム
+      function openCancelDialog(td) {
+        const box = buildOverlay();
+        const savedName = (() => { try { return localStorage.getItem(NAME_STORE_KEY) || ''; } catch (e) { return ''; } })();
+        const reasonBtns = CANCEL_REASONS
+          .map(r => `<button type="button" class="reason-btn" data-reason="${r.key}">${r.label}</button>`)
+          .join('');
+        box.innerHTML = `
+          <div class="cancel-dialog-title">コートを中止にする</div>
+          <div class="cancel-dialog-target">${slotInfoLine(td)}</div>
+          <label class="cancel-field-label">理由</label>
+          <div class="reason-btn-group">${reasonBtns}</div>
+          <label class="cancel-field-label">キャンセルした人の名前 <span class="req">必須</span></label>
+          <input type="text" id="cancel-name" class="cancel-input" maxlength="30" placeholder="例）山田" value="${savedName.replace(/"/g, '&quot;')}">
+          <label class="cancel-field-label">ひとこと（任意）</label>
+          <input type="text" id="cancel-comment" class="cancel-input" maxlength="100" placeholder="例）14時から再開予定">
+          <label class="cancel-field-label">合言葉 <span class="req">必須</span></label>
+          <input type="password" id="cancel-pw" class="cancel-input" autocomplete="off">
+          <div class="cancel-msg" id="cancel-msg"></div>
+          <div class="cancel-dialog-actions">
+            <button type="button" class="cancel-cancel-btn" id="dlg-close">閉じる</button>
+            <button type="button" class="cancel-submit-btn" id="dlg-submit" disabled>中止を登録</button>
+          </div>`;
+        let reason = '';
+        box.querySelectorAll('.reason-btn').forEach(b => {
+          b.addEventListener('click', () => {
+            reason = b.dataset.reason;
+            box.querySelectorAll('.reason-btn').forEach(x => x.classList.remove('selected'));
+            b.classList.add('selected');
+            box.querySelector('#dlg-submit').disabled = false;
+          });
+        });
+        box.querySelector('#dlg-close').addEventListener('click', closeDialog);
+        box.querySelector('#dlg-submit').addEventListener('click', async () => {
+          const name = box.querySelector('#cancel-name').value.trim();
+          const pw = box.querySelector('#cancel-pw').value;
+          const comment = box.querySelector('#cancel-comment').value.trim();
+          const msg = box.querySelector('#cancel-msg');
+          if (!reason) { msg.textContent = '理由を選んでください。'; return; }
+          if (!name) { msg.textContent = '名前を入力してください。'; return; }
+          if (!pw) { msg.textContent = '合言葉を入力してください。'; return; }
+          await submitAction(box, {
+            action: 'cancel', date: dateKey, location: td.dataset.loc,
+            court: td.dataset.court, slot: td.dataset.slot,
+            reason, name, comment, password: pw,
+          }, () => { try { localStorage.setItem(NAME_STORE_KEY, name); } catch (e) {} });
+        });
+      }
+
+      // 中止内容の確認＋取り消し
+      function openViewDialog(td, entry) {
+        const box = buildOverlay();
+        box.innerHTML = `
+          <div class="cancel-dialog-title">このコートは中止です</div>
+          <div class="cancel-dialog-target">${slotInfoLine(td)}</div>
+          <div class="cancel-view">
+            <div><span class="view-key">理由</span>${reasonLabel(entry.reason)}</div>
+            <div><span class="view-key">キャンセル者</span>${escapeHtml(entry.name)}</div>
+            ${entry.comment ? `<div><span class="view-key">ひとこと</span>${escapeHtml(entry.comment)}</div>` : ''}
+            <div><span class="view-key">登録時刻</span>${escapeHtml(entry.at || '')}</div>
+          </div>
+          <div class="cancel-clear-area">
+            <label class="cancel-field-label">中止を取り消す場合は合言葉を入力</label>
+            <input type="password" id="clear-pw" class="cancel-input" autocomplete="off">
+          </div>
+          <div class="cancel-msg" id="cancel-msg"></div>
+          <div class="cancel-dialog-actions">
+            <button type="button" class="cancel-cancel-btn" id="dlg-close">閉じる</button>
+            <button type="button" class="cancel-clear-btn" id="dlg-clear">中止を取り消す</button>
+          </div>`;
+        box.querySelector('#dlg-close').addEventListener('click', closeDialog);
+        box.querySelector('#dlg-clear').addEventListener('click', async () => {
+          const pw = box.querySelector('#clear-pw').value;
+          const msg = box.querySelector('#cancel-msg');
+          if (!pw) { msg.textContent = '合言葉を入力してください。'; return; }
+          await submitAction(box, {
+            action: 'clear', date: dateKey, location: td.dataset.loc,
+            court: td.dataset.court, slot: td.dataset.slot, password: pw,
+          });
+        });
+      }
+
+      // API送信の共通処理
+      async function submitAction(box, payload, onSuccess) {
+        const msg = box.querySelector('#cancel-msg');
+        const btns = box.querySelectorAll('button');
+        btns.forEach(b => b.disabled = true);
+        msg.textContent = '送信中…';
+        try {
+          const resp = await fetch('api/cancel.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          const j = await resp.json().catch(() => ({}));
+          if (resp.ok && j.ok) {
+            if (onSuccess) onSuccess();
+            closeDialog();
+            await render();
+          } else {
+            msg.textContent = (j && j.message) || '失敗しました。もう一度お試しください。';
+            btns.forEach(b => b.disabled = false);
+          }
+        } catch (e) {
+          msg.textContent = '通信エラーが発生しました。';
+          btns.forEach(b => b.disabled = false);
+        }
+      }
+
+      function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, c => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        })[c]);
       }
 
       render();
