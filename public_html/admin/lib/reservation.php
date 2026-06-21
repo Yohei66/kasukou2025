@@ -353,18 +353,27 @@ function res_render_html(array $data): string
 <title>{$titleH}</title>
 <style>
   body { font-family: "遊ゴシック", "Hiragino Sans", sans-serif; margin: 16px; color:#333; }
-  .res-nav { text-align: center; margin-bottom: 12px; }
-  .res-title { font-size: 26px; font-weight: bold; color: #d41a8a; }
-  .res-sub { font-size: 22px; color: #1a7f1a; margin-top: 4px; }
-  .res-sub .res-loc-cur { font-weight: bold; }
-  .res-sub .res-loc-other { margin-left: 8px; }
-  .res-month { font-size: 18px; margin-top: 4px; }
-  .res-month a { text-decoration: none; padding: 0 12px; font-weight: bold; }
-  .res-home { margin-top: 8px; font-size: 14px; }
-  .res-home a { display:inline-block; text-decoration:none; color:#1a7f1a;
-    border:1px solid #1a7f1a; border-radius:6px; padding:4px 12px; }
-  .res-home a:hover { background:#1a7f1a; color:#fff; }
+  /* 上部バー：ホームを最上部に */
+  .res-topbar { display:flex; align-items:center; justify-content:space-between; max-width:700px; margin:0 auto 14px; }
+  .res-brand { font-size:14px; font-weight:bold; color:#1a7f1a; letter-spacing:.02em; }
+  .res-home { text-decoration:none; color:#1a7f1a; border:1px solid #1a7f1a; border-radius:999px;
+    padding:6px 16px; font-size:14px; font-weight:bold; white-space:nowrap; }
+  .res-home:hover { background:#1a7f1a; color:#fff; }
+  /* 見出し・施設タブ・月切替（緑基調） */
+  .res-head { text-align:center; margin-bottom:14px; }
+  .res-title { font-size:24px; font-weight:bold; color:#1a7f1a; margin:0 0 12px; }
+  .res-loc-tabs { display:inline-flex; background:#e8efe0; border-radius:999px; padding:4px; gap:2px; }
+  .res-loc-tabs a, .res-loc-tabs span { padding:7px 24px; border-radius:999px; text-decoration:none;
+    font-weight:bold; font-size:15px; color:#5a7a55; transition:.15s; }
+  .res-loc-tabs .active { background:#1a7f1a; color:#fff; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+  .res-loc-tabs a:hover { color:#1a7f1a; }
+  .res-month { display:flex; align-items:center; justify-content:center; gap:16px; margin-top:14px; }
+  .res-month a { width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center;
+    border-radius:50%; border:1px solid #1a7f1a; color:#1a7f1a; text-decoration:none; font-size:20px; line-height:1; transition:.15s; }
+  .res-month a:hover { background:#1a7f1a; color:#fff; }
+  .res-month .cur { font-size:18px; font-weight:bold; min-width:72px; }
   a { color: #0066cc; }
+  /* 表：従来どおりコンパクト（高さ・グリッドは変えない） */
   table.auto-style27 { width: 700px; max-width: 100%; margin: 0 auto; border-collapse: collapse; }
   table.auto-style27 th, table.auto-style27 td {
     border: 1px solid #999; text-align: center; padding: 4px 6px; font-size: 14px;
@@ -380,11 +389,21 @@ function res_render_html(array $data): string
 </style>
 </head>
 <body>
-<div class="res-nav">
-  <div class="res-title">■　春日部硬式テニスクラブ　■</div>
-  <div class="res-sub">{$year}年 コート予約状況　<span class="res-loc-cur">＜{$locLabelH}＞</span><a class="res-loc-other" href="{$otherHrefH}">＜{$otherLabelH}＞</a></div>
-  <div class="res-month"><a href="{$prevHrefH}">←</a>　{$month}月　<a href="{$nextHrefH}">→</a></div>
-  <div class="res-home"><a href="../../../index.html">🏠 ホームへ戻る</a></div>
+<div class="res-topbar">
+  <div class="res-brand">春日部硬式テニスクラブ</div>
+  <a class="res-home" href="../../../index.html">🏠 ホームへ戻る</a>
+</div>
+<div class="res-head">
+  <h1 class="res-title">{$year}年 コート予約状況</h1>
+  <div class="res-loc-tabs">
+    <span class="active">{$locLabelH}</span>
+    <a href="{$otherHrefH}">{$otherLabelH}</a>
+  </div>
+  <div class="res-month">
+    <a href="{$prevHrefH}" aria-label="前の月">‹</a>
+    <span class="cur">{$month}月</span>
+    <a href="{$nextHrefH}" aria-label="次の月">›</a>
+  </div>
 </div>
 <table class="auto-style27" align="center" cellpadding="0" cellspacing="0">
 	<tr>
