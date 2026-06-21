@@ -303,27 +303,23 @@ function res_render_html(array $data): string
     $locLabel = res_location_label($loc);
     $h = fn($s) => htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
 
-    // スロットのセル（値は textContent としてそのまま＝トップページ/中止連携が読む。見た目はspanで装飾）
-    $slotCell = function ($v) use ($h) {
-        return "\t\t<td class=\"res-slot " . res_slot_class($v) . "\"><span class=\"mk\">" . $h($v) . "</span></td>\n";
-    };
     $rows = '';
     foreach ($data['days'] as $d) {
         $dowClass = res_dow_class($d['dow']);
         $dateText = $month . '月' . $d['day'] . '日';
-        $rows .= "\t<tr class=\"day-top {$dowClass}\">\n";
+        $rows .= "\t<tr>\n";
         $rows .= "\t\t<td class=\"res-date {$dowClass}\" rowspan=\"2\">" . $h($dateText) . "</td>\n";
         $rows .= "\t\t<td class=\"res-dow {$dowClass}\" rowspan=\"2\">" . $h($d['dow']) . "</td>\n";
         $rows .= "\t\t<td class=\"res-court\">A</td>\n";
         foreach ($d['a'] as $v) {
-            $rows .= $slotCell($v);
+            $rows .= "\t\t<td class=\"res-slot " . res_slot_class($v) . "\">" . $h($v) . "</td>\n";
         }
         $rows .= "\t\t<td class=\"res-memo\" rowspan=\"2\">" . $h($d['memo']) . "</td>\n";
         $rows .= "\t</tr>\n";
-        $rows .= "\t<tr class=\"day-bottom {$dowClass}\">\n";
+        $rows .= "\t<tr>\n";
         $rows .= "\t\t<td class=\"res-court\">B</td>\n";
         foreach ($d['b'] as $v) {
-            $rows .= $slotCell($v);
+            $rows .= "\t\t<td class=\"res-slot " . res_slot_class($v) . "\">" . $h($v) . "</td>\n";
         }
         $rows .= "\t</tr>\n";
     }
@@ -356,95 +352,48 @@ function res_render_html(array $data): string
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{$titleH}</title>
 <style>
-  :root{
-    --ink:#1f2937; --muted:#64748b; --line:#e5e7eb; --accent:#2563eb;
-    --green:#16a34a; --green-bg:#dcfce7; --amber:#b45309; --amber-bg:#fef3c7;
-    --sat:#2563eb; --sun:#e11d48;
+  body { font-family: "遊ゴシック", "Hiragino Sans", sans-serif; margin: 16px; color:#333; }
+  .res-nav { text-align: center; margin-bottom: 12px; }
+  .res-title { font-size: 26px; font-weight: bold; color: #d41a8a; }
+  .res-sub { font-size: 22px; color: #1a7f1a; margin-top: 4px; }
+  .res-sub .res-loc-cur { font-weight: bold; }
+  .res-sub .res-loc-other { margin-left: 8px; }
+  .res-month { font-size: 18px; margin-top: 4px; }
+  .res-month a { text-decoration: none; padding: 0 12px; font-weight: bold; }
+  .res-home { margin-top: 8px; font-size: 14px; }
+  .res-home a { display:inline-block; text-decoration:none; color:#1a7f1a;
+    border:1px solid #1a7f1a; border-radius:6px; padding:4px 12px; }
+  .res-home a:hover { background:#1a7f1a; color:#fff; }
+  a { color: #0066cc; }
+  table.auto-style27 { width: 700px; max-width: 100%; margin: 0 auto; border-collapse: collapse; }
+  table.auto-style27 th, table.auto-style27 td {
+    border: 1px solid #999; text-align: center; padding: 4px 6px; font-size: 14px;
   }
-  *{ box-sizing:border-box; }
-  body{ margin:0; background:#f1f5f9; color:var(--ink);
-    font-family: system-ui,-apple-system,"Segoe UI","Hiragino Sans","Noto Sans JP",sans-serif; }
-  .wrap{ max-width:880px; margin:0 auto; padding:18px 14px 48px; }
-  .topbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px; }
-  .brand{ font-weight:700; font-size:14px; color:var(--muted); letter-spacing:.02em; }
-  .home-link{ display:inline-flex; align-items:center; gap:6px; text-decoration:none;
-    color:var(--accent); font-weight:600; font-size:14px; padding:8px 16px;
-    border:1px solid var(--line); border-radius:999px; background:#fff; transition:.15s; }
-  .home-link:hover{ background:var(--accent); color:#fff; border-color:var(--accent); }
-  .page-head{ text-align:center; margin-bottom:18px; }
-  .page-title{ font-size:clamp(22px,5vw,30px); font-weight:800; margin:0 0 14px; letter-spacing:.02em; }
-  .loc-tabs{ display:inline-flex; background:#e2e8f0; border-radius:999px; padding:4px; gap:2px; }
-  .loc-tabs a, .loc-tabs span{ padding:8px 22px; border-radius:999px; text-decoration:none;
-    font-weight:700; font-size:14px; color:var(--muted); transition:.15s; }
-  .loc-tabs .active{ background:#fff; color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.12); }
-  .loc-tabs a:hover{ color:var(--ink); }
-  .month-nav{ display:flex; align-items:center; justify-content:center; gap:16px; margin-top:16px; }
-  .month-nav a{ width:40px; height:40px; display:inline-flex; align-items:center; justify-content:center;
-    border-radius:50%; background:#fff; border:1px solid var(--line); color:var(--accent);
-    text-decoration:none; font-size:22px; line-height:1; transition:.15s; }
-  .month-nav a:hover{ background:var(--accent); color:#fff; border-color:var(--accent); }
-  .month-nav .cur{ font-size:19px; font-weight:800; min-width:120px; text-align:center; }
-  .card{ background:#fff; border-radius:18px; overflow:hidden;
-    box-shadow:0 1px 3px rgba(15,23,42,.08), 0 12px 30px rgba(15,23,42,.06); }
-  table.auto-style27{ width:100%; border-collapse:collapse; }
-  table.auto-style27 th{ background:#f8fafc; font-size:12px; font-weight:700; color:var(--muted);
-    padding:12px 6px; border-bottom:1px solid var(--line); }
-  table.auto-style27 td{ padding:7px 6px; text-align:center; border-bottom:1px solid #f1f5f9; font-size:14px; }
-  tr.day-bottom td{ border-bottom:1px solid var(--line); }
-  .res-date{ font-weight:800; white-space:nowrap; }
-  .res-dow{ font-size:12px; color:var(--muted); }
-  .res-court{ font-weight:700; color:var(--muted); font-size:13px; }
-  .res-memo{ text-align:left; font-size:12px; color:var(--muted); max-width:160px; }
-  .res-slot .mk{ display:inline-flex; align-items:center; justify-content:center;
-    min-width:30px; height:30px; padding:0 6px; border-radius:999px; font-weight:800; font-size:15px; }
-  .res-slot.ok  .mk{ background:var(--green-bg); color:var(--green); }
-  .res-slot.ng  .mk{ background:transparent; color:#cbd5e1; }
-  .res-slot.etc .mk{ background:var(--amber-bg); color:var(--amber); font-size:13px; }
-  tr.sat .res-date, .res-dow.sat{ color:var(--sat); }
-  tr.sun .res-date, .res-dow.sun{ color:var(--sun); }
-  tr.sat td:first-child{ box-shadow:inset 3px 0 0 var(--sat); }
-  tr.sun td:first-child{ box-shadow:inset 3px 0 0 var(--sun); }
-  .legend{ text-align:center; color:var(--muted); font-size:12.5px; margin-top:16px; line-height:1.9; }
-  .legend b.ok{ color:var(--green); } .legend b.etc{ color:var(--amber); }
-  @media (max-width:600px){
-    .card{ border-radius:14px; }
-    .table-scroll{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
-    table.auto-style27{ min-width:560px; }
-  }
+  table.auto-style27 th { background: #e8efe0; }
+  .res-date, .res-dow, .res-court { white-space: nowrap; }
+  .res-slot.ok { color: #1a7f1a; font-weight: bold; }
+  .res-slot.ng { color: #c0392b; }
+  .res-slot.etc { color: #8a6d00; font-weight: bold; }
+  .res-memo { text-align: left; font-size: 12px; }
+  .res-dow.sat, .res-date.sat { color: #1565c0; }
+  .res-dow.sun, .res-date.sun { color: #c0392b; }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="topbar">
-    <div class="brand">春日部硬式テニスクラブ</div>
-    <a class="home-link" href="../../../index.html">🏠 ホーム</a>
-  </div>
-  <div class="page-head">
-    <h1 class="page-title">コート予約状況</h1>
-    <div class="loc-tabs">
-      <span class="active">{$locLabelH}</span>
-      <a href="{$otherHrefH}">{$otherLabelH}</a>
-    </div>
-    <div class="month-nav">
-      <a href="{$prevHrefH}" aria-label="前の月">‹</a>
-      <div class="cur">{$year}年{$month}月</div>
-      <a href="{$nextHrefH}" aria-label="次の月">›</a>
-    </div>
-  </div>
-  <div class="card">
-    <div class="table-scroll">
-      <table class="auto-style27" cellpadding="0" cellspacing="0">
-        <tr>
-          <th>日付</th>
-          <th>曜日</th>
-          <th>コート</th>
-{$slotHead}          <th>備考</th>
-        </tr>
-{$rows}      </table>
-    </div>
-  </div>
-  <p class="legend"><b class="ok">〇</b> 確保 ・ <span style="color:#cbd5e1;font-weight:800;">×</span> 未確保 ・ <b class="etc">D</b> Dコート<br>雨天・熱中症などの中止はトップページのコート状況からお知らせします</p>
+<div class="res-nav">
+  <div class="res-title">■　春日部硬式テニスクラブ　■</div>
+  <div class="res-sub">{$year}年 コート予約状況　<span class="res-loc-cur">＜{$locLabelH}＞</span><a class="res-loc-other" href="{$otherHrefH}">＜{$otherLabelH}＞</a></div>
+  <div class="res-month"><a href="{$prevHrefH}">←</a>　{$month}月　<a href="{$nextHrefH}">→</a></div>
+  <div class="res-home"><a href="../../../index.html">🏠 ホームへ戻る</a></div>
 </div>
+<table class="auto-style27" align="center" cellpadding="0" cellspacing="0">
+	<tr>
+		<th>日付</th>
+		<th>曜日</th>
+		<th>コート</th>
+{$slotHead}		<th>備考</th>
+	</tr>
+{$rows}</table>
 
 <script src="../../../js/court-cancel-overlay.js" defer></script>
 </body>
