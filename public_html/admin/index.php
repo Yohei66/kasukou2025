@@ -52,6 +52,7 @@ usort($items, fn($a, $b) => [$b['year'], $b['month'], $a['loc']] <=> [$a['year']
     </div>
     <p class="btnrow" style="margin-top:14px;">
       <a href="create.php">▶ 新しい月を作成</a>
+      <a href="upload.php">▶ JSONアップロード（スプシから）</a>
       <a href="import.php">▶ 既存予約の取り込み＆公開ページ生成（初回セットアップ）</a>
     </p>
     <p class="btnrow" style="margin-top:4px;font-size:13px;color:#888;">
