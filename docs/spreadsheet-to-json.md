@@ -68,15 +68,27 @@ function ExportCourtJson() {
 
   var json={ year:year, month:month, location:location, days:out };
   var name = year + ('0'+month).slice(-2) + '_' + location + '.json';
-  // 保存先：既存のCSV出力フォルダがあれば DriveApp の代わりに _getCsvFolder() に置き換え可
-  DriveApp.createFile(Utilities.newBlob(JSON.stringify(json,null,2),'application/json',name));
-  SpreadsheetApp.getUi().alert('JSON出力: '+name+'（'+out.length+'日分）');
+  var folder = _getJsonFolder();
+  // 同名ファイルがあれば消してから作成（重複防止）
+  var ex = folder.getFilesByName(name);
+  while (ex.hasNext()) ex.next().setTrashed(true);
+  folder.createFile(Utilities.newBlob(JSON.stringify(json,null,2),'application/json',name));
+  SpreadsheetApp.getUi().alert('JSON出力: '+name+'（'+out.length+'日分）\nフォルダ: '+folder.getName());
+}
+
+// スプレッドシートと同じ階層に「コート予約JSON」フォルダを用意して返す
+function _getJsonFolder() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var parents = DriveApp.getFileById(ss.getId()).getParents();
+  var parent = parents.hasNext() ? parents.next() : DriveApp.getRootFolder();
+  var it = parent.getFoldersByName('コート予約JSON');
+  return it.hasNext() ? it.next() : parent.createFolder('コート予約JSON');
 }
 ```
 
 ## 使い方
-1. スプレッドシートのApps Scriptにこの関数を貼り付け、`ExportCourtJson` を実行。
-2. Googleドライブに `YYYYMM_onuma.json` 等が出力される。
+1. スプレッドシートのApps Scriptにこの関数（`ExportCourtJson` と `_getJsonFolder`）を貼り付け、`ExportCourtJson` を実行。
+2. **スプレッドシートと同じ階層に「コート予約JSON」フォルダ**が作られ、その中に `YYYYMM_onuma.json` 等が出力される（同名は上書き）。
 3. 管理者ページ →「JSONアップロード」でそのファイルを取り込む（保存＆公開ページ生成）。
 
 ## Dコートについて
