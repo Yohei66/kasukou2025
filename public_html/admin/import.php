@@ -35,7 +35,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && admin_csrf_check($_POST['cs
             $results[] = ['label' => $label, 'status' => 'error', 'msg' => '解析できませんでした'];
             continue;
         }
-        $save = res_save($data, false); // JSONのみ（HTMLは書き換えない）
+        $save = res_save($data, true); // JSON保存＋公開HTML生成（取り込みと再生成をまとめて実行）
         if (!empty($save['ok'])) {
             $results[] = ['label' => $label, 'status' => 'ok', 'msg' => count($data['days']) . '日分'];
         } else {
@@ -67,10 +67,10 @@ $csrf = admin_csrf_token();
 <body>
   <div class="card">
     <p><a href="index.php">← 管理トップ</a></p>
-    <h1>予約データの移行（既存HTML → JSON）</h1>
+    <h1>既存予約の取り込み＆公開ページ生成（初回セットアップ）</h1>
     <p class="note">
-      既存の月別HTMLを読み取り、編集の元になる正データ(JSON)を作成します。<br>
-      既存HTMLは<strong>書き換えません</strong>（JSONを作るだけ）。最初の1回だけ実行してください。
+      既存の月別HTMLを読み取って正データ(JSON)を作成し、続けて<strong>公開ページ(新見た目)を生成</strong>します。<br>
+      予約データ(○×D)は変わりません。最初の1回だけ実行してください。
     </p>
     <form method="post">
       <input type="hidden" name="csrf" value="<?= $h($csrf) ?>">

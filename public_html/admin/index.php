@@ -52,8 +52,10 @@ usort($items, fn($a, $b) => [$b['year'], $b['month'], $a['loc']] <=> [$a['year']
     </div>
     <p class="btnrow" style="margin-top:14px;">
       <a href="create.php">▶ 新しい月を作成</a>
-      <a href="import.php">▶ 予約データの移行（既存HTML→JSON）</a>
-      <a href="regen.php">▶ 全月いっせい再生成（新見た目に統一）</a>
+      <a href="import.php">▶ 既存予約の取り込み＆公開ページ生成（初回セットアップ）</a>
+    </p>
+    <p class="btnrow" style="margin-top:4px;font-size:13px;color:#888;">
+      <a href="regen.php">（上級）見た目だけ再生成（テンプレ変更時）</a>
     </p>
   </div>
 
