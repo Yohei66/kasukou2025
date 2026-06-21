@@ -49,6 +49,7 @@ $h = fn($s) => htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
     <input type="hidden" name="csrf" value="<?= $h($csrf) ?>">
     <div class="err"><?= $h($error) ?></div>
     <button type="submit">ログイン</button>
+    <p style="text-align:center;margin:14px 0 0;"><a href="../index.html" style="font-size:13px;">← サイトトップへ戻る</a></p>
   </form>
 </body>
 </html>

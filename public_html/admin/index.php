@@ -48,7 +48,7 @@ usort($items, fn($a, $b) => [$b['year'], $b['month'], $a['loc']] <=> [$a['year']
   <div class="card">
     <div class="top">
       <h1>管理トップ</h1>
-      <span class="muted"><?= $h($_SESSION['admin_user'] ?? '') ?> さん｜<a href="logout.php">ログアウト</a></span>
+      <span class="muted"><a href="../index.html">🏠 サイトトップへ</a>｜<?= $h($_SESSION['admin_user'] ?? '') ?> さん｜<a href="logout.php">ログアウト</a></span>
     </div>
     <p class="btnrow" style="margin-top:14px;">
       <a href="create.php">▶ 新しい月を作成</a>
