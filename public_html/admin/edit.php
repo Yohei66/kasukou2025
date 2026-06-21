@@ -37,7 +37,7 @@ $csrf = admin_csrf_token();
   .toggle { width:34px; height:30px; border:1px solid #ccc; border-radius:6px; cursor:pointer; font-size:16px; background:#fff; }
   .toggle.ok { color:#1a7f1a; font-weight:bold; }
   .toggle.ng { color:#c0392b; }
-  .toggle.etc { color:#8a6d00; font-size:13px; }
+  .toggle.etc { color:#8a6d00; font-weight:bold; }
   .memo { width:150px; padding:4px; border:1px solid #ccc; border-radius:6px; }
   .sat { color:#1565c0; } .sun { color:#c0392b; }
   .savebtn { padding:9px 18px; border:none; border-radius:8px; background:#0984e3; color:#fff; font-weight:bold; cursor:pointer; }
@@ -60,7 +60,7 @@ $csrf = admin_csrf_token();
     <button id="save" class="savebtn">保存（公開ページに反映）</button>
   </div>
   <div class="hint">
-    各マスをクリックで <span style="color:#1a7f1a;font-weight:bold;">〇</span>（確保）⇄ <span style="color:#c0392b;">×</span>（未確保）を切替。備考は自由入力。日付の追加・削除も可能。保存で公開ページが自動更新されます。
+    各マスをクリックで <span style="color:#1a7f1a;font-weight:bold;">〇</span>（確保）→ <span style="color:#c0392b;">×</span>（未確保）→ <span style="color:#8a6d00;font-weight:bold;">D</span> の順で切替。備考は自由入力。日付の追加・削除も可能。保存で公開ページが自動更新されます。
   </div>
 
   <div class="addbar">
@@ -78,6 +78,7 @@ $csrf = admin_csrf_token();
   const DATA = <?= json_encode($data, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
   const SLOTS = ['9-11', '11-13', '13-15', '15-17'];
   const DOW = ['日','月','火','水','木','金','土'];
+  const STATES = ['〇', '×', 'D']; // クリックでこの順に切替（〇=確保, ×=未確保, D=その他予約）
 
   // 作業用モデル（DATA.days のコピー）
   let model = DATA && Array.isArray(DATA.days) ? JSON.parse(JSON.stringify(DATA.days)) : [];
@@ -95,7 +96,8 @@ $csrf = admin_csrf_token();
     b.dataset.val = val || '×';
     b.dataset.court = court; b.dataset.slot = slot;
     b.addEventListener('click', () => {
-      const next = (b.dataset.val === '〇' || b.dataset.val === '○') ? '×' : '〇';
+      const i = STATES.indexOf(b.dataset.val); // 未知の値は -1 → 次は STATES[0]
+      const next = STATES[(i + 1) % STATES.length];
       b.dataset.val = next; b.textContent = next; b.className = 'toggle ' + slotClass(next);
     });
     return b;
