@@ -1,7 +1,8 @@
 <?php
 /**
  * 予約編集画面。管理者ログイン必須。
- * 月を指定して読み込み、○×トグル＋備考を編集 → 保存で save.php に送信。
+ * 月を指定して読み込み、○×トグル＋備考を編集、日付行の追加・削除も可能。
+ * 保存で save.php に送信 → JSON更新＆公開HTML再生成。
  * 使い方: edit.php?year=2026&month=6&loc=onuma
  */
 require __DIR__ . '/auth.php';
@@ -25,7 +26,7 @@ $csrf = admin_csrf_token();
 <title>予約編集｜管理者</title>
 <style>
   body { font-family: "遊ゴシック", sans-serif; margin: 16px; background:#f4f6f8; }
-  .bar { max-width: 980px; margin: 0 auto 12px; display:flex; align-items:center; gap:16px; }
+  .bar { max-width: 1040px; margin: 0 auto 10px; display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
   .bar h1 { font-size:18px; margin:0; }
   .bar .spacer { flex:1; }
   a { color:#0984e3; }
@@ -41,9 +42,13 @@ $csrf = admin_csrf_token();
   .sat { color:#1565c0; } .sun { color:#c0392b; }
   .savebtn { padding:9px 18px; border:none; border-radius:8px; background:#0984e3; color:#fff; font-weight:bold; cursor:pointer; }
   .savebtn:disabled { opacity:.6; cursor:not-allowed; }
+  .delbtn { border:none; background:#fff; color:#c0392b; cursor:pointer; font-size:14px; border:1px solid #e0b4b4; border-radius:6px; padding:3px 8px; }
+  .addbar { max-width:1040px; margin:0 auto 10px; background:#fff; padding:10px 14px; border-radius:10px; font-size:14px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .addbar input { width:60px; padding:6px; border:1px solid #ccc; border-radius:6px; }
+  .addbar button { padding:7px 14px; border:none; border-radius:8px; background:#27ae60; color:#fff; font-weight:bold; cursor:pointer; }
   .msg { font-size:14px; }
   .msg.ok { color:#1a7f1a; } .msg.err { color:#c0392b; }
-  .hint { max-width:980px; margin:0 auto 10px; font-size:12px; color:#666; }
+  .hint { max-width:1040px; margin:0 auto 10px; font-size:12px; color:#666; }
 </style>
 </head>
 <body>
@@ -55,7 +60,14 @@ $csrf = admin_csrf_token();
     <button id="save" class="savebtn">保存（公開ページに反映）</button>
   </div>
   <div class="hint">
-    各マスをクリックで <span style="color:#1a7f1a;font-weight:bold;">〇</span>（確保）⇄ <span style="color:#c0392b;">×</span>（未確保）を切替。備考は自由入力。保存すると公開ページが自動更新されます。
+    各マスをクリックで <span style="color:#1a7f1a;font-weight:bold;">〇</span>（確保）⇄ <span style="color:#c0392b;">×</span>（未確保）を切替。備考は自由入力。日付の追加・削除も可能。保存で公開ページが自動更新されます。
+  </div>
+
+  <div class="addbar">
+    <strong>日付を追加：</strong>
+    <label><?= (int)$month ?>月 <input type="number" id="newday" min="1" max="31" placeholder="日"> 日</label>
+    <button id="adddaybtn" type="button">＋ 追加</button>
+    <span id="addmsg" style="color:#c0392b;"></span>
   </div>
 
   <div id="wrap" style="overflow-x:auto;"></div>
@@ -65,92 +77,106 @@ $csrf = admin_csrf_token();
   const TARGET = { year: <?= (int)$year ?>, month: <?= (int)$month ?>, loc: <?= json_encode($loc) ?> };
   const DATA = <?= json_encode($data, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
   const SLOTS = ['9-11', '11-13', '13-15', '15-17'];
+  const DOW = ['日','月','火','水','木','金','土'];
+
+  // 作業用モデル（DATA.days のコピー）
+  let model = DATA && Array.isArray(DATA.days) ? JSON.parse(JSON.stringify(DATA.days)) : [];
 
   function slotClass(v){ return (v==='〇'||v==='○') ? 'ok' : (v==='×'||v==='x'||v==='X') ? 'ng' : 'etc'; }
   function dowClass(d){ return d==='土' ? 'sat' : d==='日' ? 'sun' : ''; }
+  function dowOf(day){ return DOW[new Date(TARGET.year, TARGET.month-1, day).getDay()]; }
+  function daysInMonth(){ return new Date(TARGET.year, TARGET.month, 0).getDate(); }
 
-  function makeToggle(val){
+  function makeToggle(val, court, slot){
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'toggle ' + slotClass(val);
     b.textContent = val || '×';
     b.dataset.val = val || '×';
+    b.dataset.court = court; b.dataset.slot = slot;
     b.addEventListener('click', () => {
-      const cur = b.dataset.val;
-      const next = (cur === '〇' || cur === '○') ? '×' : '〇';
-      b.dataset.val = next;
-      b.textContent = next;
-      b.className = 'toggle ' + slotClass(next);
+      const next = (b.dataset.val === '〇' || b.dataset.val === '○') ? '×' : '〇';
+      b.dataset.val = next; b.textContent = next; b.className = 'toggle ' + slotClass(next);
     });
     return b;
   }
 
-  function render(){
-    const title = document.getElementById('title');
-    if (!DATA){ title.textContent = '対象データがありません'; document.getElementById('save').disabled = true; return; }
-    title.textContent = `${TARGET.year}年 ${TARGET.month}月 ${DATA.locationLabel || TARGET.loc} を編集`;
+  // DOMの編集状態をモデルに反映（行は model と同順）
+  function syncFromDom(){
+    const rows = document.querySelectorAll('#wrap tbody tr');
+    rows.forEach((tr, i) => {
+      if (!model[i]) return;
+      const a = ['×','×','×','×'], b = ['×','×','×','×'];
+      tr.querySelectorAll('.toggle').forEach(t => {
+        (t.dataset.court === 'a' ? a : b)[Number(t.dataset.slot)] = t.dataset.val;
+      });
+      model[i].a = a; model[i].b = b;
+      model[i].memo = tr.querySelector('input[data-memo]').value;
+    });
+  }
 
+  function renderRows(){
+    const wrap = document.getElementById('wrap');
+    wrap.innerHTML = '';
     const tbl = document.createElement('table');
-    const thead = document.createElement('thead');
-    let hr = '<tr><th rowspan="2">日付</th><th rowspan="2">曜日</th><th colspan="4" class="grp-a">A面</th><th colspan="4" class="grp-b">B面</th><th rowspan="2">備考</th></tr>';
+    let hr = '<tr><th rowspan="2">日付</th><th rowspan="2">曜日</th><th colspan="4" class="grp-a">A面</th><th colspan="4" class="grp-b">B面</th><th rowspan="2">備考</th><th rowspan="2">操作</th></tr>';
     hr += '<tr>' + SLOTS.map(s=>`<th class="grp-a">${s}</th>`).join('') + SLOTS.map(s=>`<th class="grp-b">${s}</th>`).join('') + '</tr>';
-    thead.innerHTML = hr;
-    tbl.appendChild(thead);
+    const thead = document.createElement('thead'); thead.innerHTML = hr; tbl.appendChild(thead);
 
     const tbody = document.createElement('tbody');
-    DATA.days.forEach((d, idx) => {
+    model.forEach((d, idx) => {
       const tr = document.createElement('tr');
-      tr.dataset.idx = idx;
       const dc = dowClass(d.dow);
       tr.innerHTML = `<td class="${dc}">${TARGET.month}月${d.day}日</td><td class="${dc}">${d.dow||''}</td>`;
       ['a','b'].forEach(court => {
         for (let s=0; s<4; s++){
           const td = document.createElement('td');
           td.className = court==='a' ? 'grp-a' : 'grp-b';
-          const tog = makeToggle((d[court]||[])[s] || '×');
-          tog.dataset.court = court; tog.dataset.slot = s;
-          td.appendChild(tog);
+          td.appendChild(makeToggle((d[court]||[])[s] || '×', court, s));
           tr.appendChild(td);
         }
       });
       const tdMemo = document.createElement('td');
       const inp = document.createElement('input');
-      inp.className = 'memo'; inp.type = 'text'; inp.maxLength = 100;
-      inp.value = d.memo || ''; inp.dataset.memo = '1';
-      tdMemo.appendChild(inp);
-      tr.appendChild(tdMemo);
+      inp.className='memo'; inp.type='text'; inp.maxLength=100; inp.value=d.memo||''; inp.dataset.memo='1';
+      tdMemo.appendChild(inp); tr.appendChild(tdMemo);
+      const tdDel = document.createElement('td');
+      const del = document.createElement('button');
+      del.type='button'; del.className='delbtn'; del.textContent='削除';
+      del.addEventListener('click', () => { if (confirm(`${TARGET.month}月${d.day}日 を削除しますか？`)) removeDay(idx); });
+      tdDel.appendChild(del); tr.appendChild(tdDel);
       tbody.appendChild(tr);
     });
     tbl.appendChild(tbody);
-    document.getElementById('wrap').appendChild(tbl);
+    wrap.appendChild(tbl);
   }
 
-  function collect(){
-    const rows = document.querySelectorAll('#wrap tbody tr');
-    const days = [];
-    rows.forEach(tr => {
-      const idx = Number(tr.dataset.idx);
-      const src = DATA.days[idx];
-      const a = ['×','×','×','×'], b = ['×','×','×','×'];
-      tr.querySelectorAll('.toggle').forEach(t => {
-        const arr = t.dataset.court === 'a' ? a : b;
-        arr[Number(t.dataset.slot)] = t.dataset.val;
-      });
-      const memo = tr.querySelector('input[data-memo]').value;
-      days.push({ day: src.day, dow: src.dow, a, b, memo });
-    });
-    return days;
+  function addDay(){
+    const am = document.getElementById('addmsg'); am.textContent='';
+    const day = parseInt(document.getElementById('newday').value, 10);
+    if (!day || day < 1 || day > daysInMonth()){ am.textContent = `1〜${daysInMonth()}の日付を入力してください`; return; }
+    syncFromDom();
+    if (model.some(d => Number(d.day) === day)){ am.textContent = `${day}日は既にあります`; return; }
+    model.push({ day, dow: dowOf(day), a:['×','×','×','×'], b:['×','×','×','×'], memo:'' });
+    model.sort((x,y) => x.day - y.day);
+    renderRows();
+    document.getElementById('newday').value = '';
+  }
+
+  function removeDay(idx){
+    syncFromDom();
+    model.splice(idx, 1);
+    renderRows();
   }
 
   async function save(){
-    const btn = document.getElementById('save');
-    const msg = document.getElementById('msg');
-    btn.disabled = true; msg.className = 'msg'; msg.textContent = '保存中…';
+    const btn = document.getElementById('save'); const msg = document.getElementById('msg');
+    syncFromDom();
+    btn.disabled = true; msg.className='msg'; msg.textContent='保存中…';
     try {
       const resp = await fetch('save.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ csrf: CSRF, year: TARGET.year, month: TARGET.month, location: TARGET.loc, days: collect() })
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ csrf: CSRF, year: TARGET.year, month: TARGET.month, location: TARGET.loc, days: model })
       });
       const j = await resp.json().catch(()=>({}));
       if (resp.ok && j.ok){ msg.className='msg ok'; msg.textContent='保存しました（公開ページ更新済み）'; }
@@ -159,8 +185,12 @@ $csrf = admin_csrf_token();
     btn.disabled = false;
   }
 
+  document.getElementById('title').textContent = DATA
+    ? `${TARGET.year}年 ${TARGET.month}月 ${DATA.locationLabel || TARGET.loc} を編集`
+    : `${TARGET.year}年 ${TARGET.month}月 ${TARGET.loc} を編集（データなし）`;
   document.getElementById('save').addEventListener('click', save);
-  render();
+  document.getElementById('adddaybtn').addEventListener('click', addDay);
+  renderRows();
 </script>
 </body>
 </html>
