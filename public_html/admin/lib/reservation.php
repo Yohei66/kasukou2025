@@ -339,9 +339,20 @@ function res_render_html(array $data): string
         ? 'coatbooking' . $pad($month + 1) . '-' . $loc . '.html'
         : '../' . ($year + 1) . '/coatbooking01-' . $loc . '.html');
 
+    // 施設タブは常に「大沼→立沼」の固定順。選択中だけ背景色（位置は入れ替えない）
+    $locTabsH = '';
+    foreach (['onuma', 'tatenuma'] as $lk) {
+        $lbl = $h(res_location_label($lk));
+        if ($lk === $loc) {
+            $locTabsH .= '<span class="active">' . $lbl . '</span>';
+        } else {
+            $locTabsH .= '<a href="' . $h('coatbooking' . $pad($month) . '-' . $lk . '.html') . '">' . $lbl . '</a>';
+        }
+    }
+
     $slotHead = '';
     foreach (RES_TIME_SLOTS as $s) {
-        $slotHead .= "\t\t<th>" . $h($s) . "</th>\n";
+        $slotHead .= "\t\t<th class=\"col-slot\">" . $h($s) . "</th>\n";
     }
 
     return <<<HTML
@@ -374,16 +385,20 @@ function res_render_html(array $data): string
   .res-month .cur { font-size:18px; font-weight:bold; min-width:72px; }
   a { color: #0066cc; }
   /* 表：従来どおりコンパクト（高さ・グリッドは変えない） */
-  table.auto-style27 { width: 700px; max-width: 100%; margin: 0 auto; border-collapse: collapse; }
+  /* 列幅を固定（table-layout:fixed）→ 施設を切り替えてもガタつかない */
+  table.auto-style27 { width: 700px; max-width: 100%; margin: 0 auto; border-collapse: collapse; table-layout: fixed; }
   table.auto-style27 th, table.auto-style27 td {
     border: 1px solid #999; text-align: center; padding: 4px 6px; font-size: 14px;
   }
   table.auto-style27 th { background: #e8efe0; }
+  .col-date { width: 70px; } .col-dow { width: 46px; } .col-court { width: 46px; }
+  .col-slot { width: 66px; } .col-memo { width: 150px; }
   .res-date, .res-dow, .res-court { white-space: nowrap; }
   .res-slot.ok { color: #1a7f1a; font-weight: bold; }
   .res-slot.ng { color: #c0392b; }
   .res-slot.etc { color: #8a6d00; font-weight: bold; }
-  .res-memo { text-align: left; font-size: 12px; }
+  /* 備考は固定幅・長い文字は折り返し（行高で吸収） */
+  .res-memo { text-align: left; font-size: 12px; white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
   .res-dow.sat, .res-date.sat { color: #1565c0; }
   .res-dow.sun, .res-date.sun { color: #c0392b; }
 </style>
@@ -395,10 +410,7 @@ function res_render_html(array $data): string
 </div>
 <div class="res-head">
   <h1 class="res-title">{$year}年 コート予約状況</h1>
-  <div class="res-loc-tabs">
-    <span class="active">{$locLabelH}</span>
-    <a href="{$otherHrefH}">{$otherLabelH}</a>
-  </div>
+  <div class="res-loc-tabs">{$locTabsH}</div>
   <div class="res-month">
     <a href="{$prevHrefH}" aria-label="前の月">‹</a>
     <span class="cur">{$month}月</span>
@@ -407,10 +419,10 @@ function res_render_html(array $data): string
 </div>
 <table class="auto-style27" align="center" cellpadding="0" cellspacing="0">
 	<tr>
-		<th>日付</th>
-		<th>曜日</th>
-		<th>コート</th>
-{$slotHead}		<th>備考</th>
+		<th class="col-date">日付</th>
+		<th class="col-dow">曜日</th>
+		<th class="col-court">コート</th>
+{$slotHead}		<th class="col-memo">備考</th>
 	</tr>
 {$rows}</table>
 
