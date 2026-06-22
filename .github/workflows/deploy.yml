@@ -23,3 +23,11 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./public_html/
           server-dir: /kasukou2025.stars.ne.jp/public_html/
+          # 予約の月別HTMLは「管理者ページ(JSON→生成)」が本番上で管理するため、
+          # デプロイでは上書きしない（本番で更新された予約データを守る）。
+          # ※ exclude を指定すると既定値を上書きするので .git 等も明記する。
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/coatbokking/NEWFORMAT/**

@@ -79,6 +79,7 @@
             <li><a href="https://sta-tennis.org/">埼玉県テニス協会</a></li>
 
             <li><a href="http://glofo835.g2.xrea.com/">日本女子テニス連盟 <br>埼玉県支部</a></li>
+            <li><a href="admin/index.php">管理者ページ</a></li>
           </ul>
         </div>
         <div class="list-wrap">
@@ -255,10 +256,10 @@
         return td;
       }
 
-      // 確保済み（中止できる）マスかどうか。〇/○ のみ対象（× や空欄は不可）
+      // 確保済み（中止できる）マスかどうか。〇/○ と D/Ｄ（Dコート確保）が対象（× や空欄は不可）
       function isHeld(text) {
         const t = (text || '').trim();
-        return t === '〇' || t === '○';
+        return t === '〇' || t === '○' || t === 'D' || t === 'Ｄ';
       }
 
       // セルの見た目を最新の中止状態に合わせて更新
