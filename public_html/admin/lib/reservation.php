@@ -360,7 +360,7 @@ function res_render_html(array $data): string
 <html lang="ja">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=740">
 <title>{$titleH}</title>
 <style>
   body { font-family: "遊ゴシック", "Hiragino Sans", sans-serif; margin: 16px; color:#333; }
