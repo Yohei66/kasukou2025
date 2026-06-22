@@ -40,12 +40,12 @@ $h = fn($s) => htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
 </style>
 </head>
 <body>
-  <form class="box" method="post" autocomplete="off">
+  <form class="box" method="post" autocomplete="on">
     <h1>管理者ログイン</h1>
     <label for="user">管理者ID</label>
-    <input type="text" id="user" name="user" autofocus>
+    <input type="text" id="user" name="user" autocomplete="username" autofocus>
     <label for="pass">パスワード</label>
-    <input type="password" id="pass" name="pass">
+    <input type="password" id="pass" name="pass" autocomplete="current-password">
     <input type="hidden" name="csrf" value="<?= $h($csrf) ?>">
     <div class="err"><?= $h($error) ?></div>
     <button type="submit">ログイン</button>
