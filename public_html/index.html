@@ -317,7 +317,7 @@
 
         todayDiv.innerHTML =
           `<h3>本日（${dateStr}）のコート予約状況</h3>` +
-          `<p class="cancel-help">雨・熱中症・雷・強風などで中止する場合は、下の表の<strong>時間帯のマス</strong>をクリックしてください（A面・B面・時間帯ごとに登録できます）。中止済みのマスをクリックするとキャンセルした人を確認できます。</p>` +
+          `<p class="cancel-help">雨・熱中症アラートなどでコートキャンセルした場合は、下の表の<strong>時間帯のマス</strong>をクリックしてください。キャンセル済みのマスをクリックするとキャンセルした人を確認できます。</p>` +
           `<div id="booking-list">読み込み中…</div>`;
         const list = document.getElementById('booking-list');
 
@@ -400,7 +400,8 @@
           .map(r => `<button type="button" class="reason-btn" data-reason="${r.key}">${r.label}</button>`)
           .join('');
         box.innerHTML = `
-          <div class="cancel-dialog-title">コートを中止にする</div>
+          <div class="cancel-dialog-title">キャンセル反映</div>
+          <p class="cancel-dialog-note">体育館へ電話し、コート代還付が可能である事を確認したうえで、キャンセル手続きを行ってからキャンセル登録を行ってください</p>
           <div class="cancel-dialog-target">${slotInfoLine(td)}</div>
           <label class="cancel-field-label">理由</label>
           <div class="reason-btn-group">${reasonBtns}</div>
@@ -445,7 +446,7 @@
       function openViewDialog(td, entry) {
         const box = buildOverlay();
         box.innerHTML = `
-          <div class="cancel-dialog-title">このコートは中止です</div>
+          <div class="cancel-dialog-title">キャンセル取消</div>
           <div class="cancel-dialog-target">${slotInfoLine(td)}</div>
           <div class="cancel-view">
             <div><span class="view-key">理由</span>${reasonLabel(entry.reason)}</div>
@@ -454,13 +455,13 @@
             <div><span class="view-key">登録時刻</span>${escapeHtml(entry.at || '')}</div>
           </div>
           <div class="cancel-clear-area">
-            <label class="cancel-field-label">中止を取り消す場合は合言葉を入力</label>
+            <label class="cancel-field-label">合言葉 <span class="req">必須</span></label>
             <input type="password" id="clear-pw" class="cancel-input" autocomplete="off">
           </div>
           <div class="cancel-msg" id="cancel-msg"></div>
           <div class="cancel-dialog-actions">
             <button type="button" class="cancel-cancel-btn" id="dlg-close">閉じる</button>
-            <button type="button" class="cancel-clear-btn" id="dlg-clear">中止を取り消す</button>
+            <button type="button" class="cancel-clear-btn" id="dlg-clear">キャンセルを取り消す</button>
           </div>`;
         box.querySelector('#dlg-close').addEventListener('click', closeDialog);
         box.querySelector('#dlg-clear').addEventListener('click', async () => {
