@@ -1,0 +1,15 @@
+# 秘密情報・ローカル設定（公開フォルダの外に置く想定／絶対にコミットしない）
+/cancel_config.php
+/admin_config.php
+public_html/cancel_config.php
+public_html/api/cancel_config.php
+public_html/admin/admin_config.php
+
+# ローカルの予約・中止データ（PHPが生成。正データは本番サーバー側）
+/reservation_data/
+/cancel_data/
+public_html/api/cancel_data/
+
+# ローカル確認用の一時ファイル
+/_preview*.html
+/_gen_preview.php
