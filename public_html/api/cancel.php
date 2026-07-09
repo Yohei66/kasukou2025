@@ -158,6 +158,26 @@ function clean_text($v, int $max): string
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
 if ($method === 'GET') {
+    // 月指定: その月の全日分の中止をまとめて返す（コート予約状況ページ用・過去分も残す）
+    if (isset($_GET['month'])) {
+        $month = clean_text($_GET['month'], 7);
+        if (!preg_match('/^\d{4}-\d{2}$/', $month)) {
+            http_response_code(400);
+            send_json(['ok' => false, 'error' => 'bad_month', 'message' => 'month は YYYY-MM 形式で指定してください。']);
+        }
+        $data = load_data($dataFile);
+        $out = [];
+        foreach ($data as $d => $day) {
+            if (is_string($d) && strpos($d, $month . '-') === 0 && is_array($day)) {
+                $pruned = prune_day($day);
+                if (count($pruned) > 0) {
+                    $out[$d] = $pruned;
+                }
+            }
+        }
+        send_json(['ok' => true, 'month' => $month, 'cancellations' => (object)$out]);
+    }
+
     $date = isset($_GET['date']) ? clean_text($_GET['date'], 10) : today_key();
     if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
         $date = today_key();
