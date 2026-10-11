@@ -1,13 +1,13 @@
 {
     "description": "DO NOT DELETE THIS FILE. This file is used to keep track of which files have been synced in the most recent deployment. If you delete this file a resync will need to be done (which can take a while) - read more: https://github.com/SamKirkland/FTP-Deploy-Action",
     "version": "1.0.0",
-    "generatedTime": 1764065396116,
+    "generatedTime": 1783555582745,
     "data": [
         {
             "type": "file",
             "name": ".ftp-deploy-sync-state.json",
-            "size": 35113,
-            "hash": "a4a59aa1c15ec9973af557a3953798b9336e1ff172dab8fc5b9de51cd7c3f787"
+            "size": 38916,
+            "hash": "e879ed8e87e3d0ef9396bc6f421d2bf2e296d79cfabcb36bdfca75adadd3a034"
         },
         {
             "type": "file",
@@ -44,6 +44,20 @@
             "name": "40th_Anniv_sanka.pdf",
             "size": 251601,
             "hash": "b116bf9565829365d3b764e8f16f1cbb3dc4770ac10e67ebdec3ae8b269d4877"
+        },
+        {
+            "type": "folder",
+            "name": "admin"
+        },
+        {
+            "type": "folder",
+            "name": "api"
+        },
+        {
+            "type": "file",
+            "name": "cancel_config.sample.php",
+            "size": 978,
+            "hash": "8943d2b9564d7dc8ec8eb5d56e20d87cb9d46868bd30d1bfb0a3d830ec84df33"
         },
         {
             "type": "folder",
@@ -86,12 +100,16 @@
         {
             "type": "file",
             "name": "index.html",
-            "size": 11687,
-            "hash": "89f54344a3aa39e4e7e5a73678bcac65ec404c347978f2bbf65702b1bf80c631"
+            "size": 23037,
+            "hash": "77e20e6728c0d8263a79735075a3c014d7468043a7e5e91783657ead350dd4b7"
         },
         {
             "type": "folder",
             "name": "introduction"
+        },
+        {
+            "type": "folder",
+            "name": "js"
         },
         {
             "type": "file",
@@ -153,9 +171,21 @@
         },
         {
             "type": "file",
+            "name": "kiyaku20260517.pdf",
+            "size": 268292,
+            "hash": "58e8e9cbcdb224da1867967cfb42388f2c211c9d4dd55ef5ab77a645955c0f61"
+        },
+        {
+            "type": "file",
             "name": "kyubutodoke201411.pdf",
             "size": 71350,
             "hash": "d01d737ee5e7d882e651cba649bc3588307a9bcb4ffaf1529e8b995637e4c1a9"
+        },
+        {
+            "type": "file",
+            "name": "kyukaitodoke202605.pdf",
+            "size": 307951,
+            "hash": "c67eae30631f1962424be90fc4275e8e8df76a1028f172c39123eaf9f987088d"
         },
         {
             "type": "file",
@@ -169,15 +199,21 @@
         },
         {
             "type": "file",
-            "name": "nyuukaitodoke20250618.pdf",
-            "size": 527289,
-            "hash": "84ced0022881849fe87ecbe8d19de743d6e6fbf32bd4c3cab0698f3a8cdcd284"
+            "name": "nyukaitodoke202605.pdf",
+            "size": 521781,
+            "hash": "d793ccb41b1fb0b1dbacccf59883eaad5e9d820045499d7b0dc776d393694e48"
         },
         {
             "type": "file",
             "name": "nyuukaitodoke202503.pdf",
             "size": 505097,
             "hash": "db587e9566f499a341d0e1e77c40c71155920ff93f14845f971dc7187b3bed0f"
+        },
+        {
+            "type": "file",
+            "name": "nyuukaitodoke20250618.pdf",
+            "size": 527289,
+            "hash": "84ced0022881849fe87ecbe8d19de743d6e6fbf32bd4c3cab0698f3a8cdcd284"
         },
         {
             "type": "folder",
@@ -203,15 +239,21 @@
         },
         {
             "type": "file",
-            "name": "styles.css",
-            "size": 8279,
-            "hash": "9c837fdb49daa45a46dd245076081309ef9d6143ea15a85d61583457a3373760"
-        },
-        {
-            "type": "file",
             "name": "tennis_manner.pdf",
             "size": 265776,
             "hash": "815de125c2d87c42615b59d0e821a9f3319066f90f543fefa644bc1c15a92b11"
+        },
+        {
+            "type": "file",
+            "name": "test_2.html",
+            "size": 13,
+            "hash": "0be1c3069b362be06df072656b12280426fcd88916defa112e13c86589044224"
+        },
+        {
+            "type": "file",
+            "name": "styles.css",
+            "size": 11888,
+            "hash": "c882b234708a062014b4bcfd5340897bacc2f9a176f02f678b41e73c2d71ace8"
         },
         {
             "type": "file",
@@ -221,13 +263,79 @@
         },
         {
             "type": "file",
-            "name": "test_2.html",
-            "size": 13,
-            "hash": "0be1c3069b362be06df072656b12280426fcd88916defa112e13c86589044224"
+            "name": "admin/auth.php",
+            "size": 3486,
+            "hash": "285bc010927690c76ae05b5f383139137d0da7e5f346b944e09b9f5e8cae2a83"
+        },
+        {
+            "type": "file",
+            "name": "admin/create.php",
+            "size": 3585,
+            "hash": "5ebf0c3e48e9a070fe582d7a7bd2e86d9c1d413476a7e9cc6887f10edd2aeb3b"
+        },
+        {
+            "type": "file",
+            "name": "admin/edit.php",
+            "size": 9896,
+            "hash": "0e18ccd704dd55edfcbc5b714c8c674bd6fa5c38885a5222dd7d9cf9410c447b"
+        },
+        {
+            "type": "file",
+            "name": "admin/import.php",
+            "size": 4085,
+            "hash": "df4dedbeae23bc7b04e0c55302b4eb93a5c77a547b014ee1bcad7cbe2d9630a5"
+        },
+        {
+            "type": "file",
+            "name": "admin/index.php",
+            "size": 3895,
+            "hash": "5fbd3ad2a157e62b033bfd2eb3cb96cb40085f482df2a62fa6c6efa588f8deca"
         },
         {
             "type": "folder",
-            "name": "coatbokking/NEWFORMAT"
+            "name": "admin/lib"
+        },
+        {
+            "type": "file",
+            "name": "admin/login.php",
+            "size": 2520,
+            "hash": "a5986a39944e7bfe54c155cc4871cb0996cf5659c09349db3a2fdb7d4a4db8e8"
+        },
+        {
+            "type": "file",
+            "name": "admin/logout.php",
+            "size": 90,
+            "hash": "70e10c80fca168125060dd274c64ff924b81a2c1375385da9e9b4c5d7eec67ea"
+        },
+        {
+            "type": "file",
+            "name": "admin/preview.php",
+            "size": 1063,
+            "hash": "7bcc11156d1938767b4fb932078db822775ecd2c46fd8ba9ce61cc8892c32a4e"
+        },
+        {
+            "type": "file",
+            "name": "admin/save.php",
+            "size": 2117,
+            "hash": "30f279eebc73d7a0654f3d00894c119b5f02b7a7d6f85eb3c50f59f63d61fa45"
+        },
+        {
+            "type": "file",
+            "name": "admin/regen.php",
+            "size": 4247,
+            "hash": "a896c0d5da45260805e4e30c39f60cf6905a24b360d14d25a0fdc52c7b370faf"
+        },
+        {
+            "type": "file",
+            "name": "admin/upload.php",
+            "size": 5491,
+            "hash": "46203d94e82b7af5b9b15575ef65995f624b259f4abb5fa2b4ab09e4b0f19e29"
+        },
+        {
+            "type": "file",
+            "name": "api/cancel.php",
+            "size": 10460,
+            "hash": "fd2449aecb2759769da9ff18d62bb707e56f3bdc17d7295bc1da50eaa876ecf8"
         },
         {
             "type": "folder",
@@ -277,15 +385,15 @@
         },
         {
             "type": "file",
-            "name": "introduction/doubles_game.html",
-            "size": 14199,
-            "hash": "bffdd2c367d2250bec14889e0d7a452383cd29f41cac94f4b427836a439c3419"
-        },
-        {
-            "type": "file",
             "name": "introduction/20221113 event.gif",
             "size": 1064675,
             "hash": "8a252a0ebf0fb517b1585380675caae100589fd6d0d0a9776ed555724f0b655b"
+        },
+        {
+            "type": "file",
+            "name": "introduction/doubles_game.html",
+            "size": 14199,
+            "hash": "bffdd2c367d2250bec14889e0d7a452383cd29f41cac94f4b427836a439c3419"
         },
         {
             "type": "file",
@@ -319,15 +427,15 @@
         },
         {
             "type": "file",
-            "name": "introduction/lesson.html",
-            "size": 30178,
-            "hash": "d1349c88d3891f7b2b4f0a66af7f0d056311ce17d960bb12ebebcc8f4a016485"
-        },
-        {
-            "type": "file",
             "name": "introduction/introduction_copy2.html",
             "size": 5646,
             "hash": "f87cc87071cab81fa06dede49b9839f48e52818d2f3734986ec69bd4b5c9a133"
+        },
+        {
+            "type": "file",
+            "name": "introduction/lesson.html",
+            "size": 30178,
+            "hash": "d1349c88d3891f7b2b4f0a66af7f0d056311ce17d960bb12ebebcc8f4a016485"
         },
         {
             "type": "file",
@@ -342,14 +450,20 @@
             "hash": "b786a176fd1312304c75a0733ad06376919c34eec4672161c0fd776eda641c29"
         },
         {
-            "type": "folder",
-            "name": "keijiban/css"
+            "type": "file",
+            "name": "js/court-cancel-overlay.js",
+            "size": 3639,
+            "hash": "141874768a3395d525fb00718cf5a7eba09b88455e5ed21fd1b39d446e864681"
         },
         {
             "type": "file",
             "name": "keijiban/BackUp2_test.html",
             "size": 5817,
             "hash": "36f8289be195267d1ede6bca211d327792db98ccc4cf7810f3b23bcba1eaad79"
+        },
+        {
+            "type": "folder",
+            "name": "keijiban/css"
         },
         {
             "type": "file",
@@ -359,15 +473,15 @@
         },
         {
             "type": "file",
-            "name": "keijiban/index_BackUp1.html",
-            "size": 6349,
-            "hash": "458fc486fb24b097eed310a0a78b04b0d8b034eb2129a6075a42548ecd364dc6"
-        },
-        {
-            "type": "file",
             "name": "keijiban/index_BackUp2.html",
             "size": 6075,
             "hash": "0b4ae29295a80292db4ff2b7e6b4fa1d031c4857176dc7a121d6855d81461541"
+        },
+        {
+            "type": "file",
+            "name": "keijiban/index_BackUp1.html",
+            "size": 6349,
+            "hash": "458fc486fb24b097eed310a0a78b04b0d8b034eb2129a6075a42548ecd364dc6"
         },
         {
             "type": "folder",
@@ -560,20 +674,10 @@
             "hash": "7f9ceb2bdae14ff426530a0f2c0cd6c5d3c1669bcd685f1b22d35ec017870613"
         },
         {
-            "type": "folder",
-            "name": "coatbokking/NEWFORMAT/2023"
-        },
-        {
-            "type": "folder",
-            "name": "coatbokking/NEWFORMAT/2024"
-        },
-        {
-            "type": "folder",
-            "name": "coatbokking/NEWFORMAT/2025"
-        },
-        {
-            "type": "folder",
-            "name": "coatbokking/NEWFORMAT/2026"
+            "type": "file",
+            "name": "admin/lib/reservation.php",
+            "size": 15501,
+            "hash": "1d2041f19d1d1b34269e2418131919f0a0f28c38e0281c98598eccbdfdc26ba7"
         },
         {
             "type": "file",
@@ -607,9 +711,9 @@
         },
         {
             "type": "file",
-            "name": "image/geo/right.jpg",
-            "size": 1057,
-            "hash": "d37ae5d30f0c116ebab7220fca3d5ad89bb1bb89eb1893b0d41e0092f70483c8"
+            "name": "image/geo/top.jpg",
+            "size": 10870,
+            "hash": "e76505466750915436b30c495c3fbed8ab0a8c6d93a0d1f1adceabbe3b2d653f"
         },
         {
             "type": "file",
@@ -619,9 +723,9 @@
         },
         {
             "type": "file",
-            "name": "image/geo/top.jpg",
-            "size": 10870,
-            "hash": "e76505466750915436b30c495c3fbed8ab0a8c6d93a0d1f1adceabbe3b2d653f"
+            "name": "image/geo/right.jpg",
+            "size": 1057,
+            "hash": "d37ae5d30f0c116ebab7220fca3d5ad89bb1bb89eb1893b0d41e0092f70483c8"
         },
         {
             "type": "file",
@@ -652,420 +756,6 @@
             "name": "keijiban/js/treeview.js",
             "size": 48388,
             "hash": "ca1dac564c5a28327f7a3a570859b0a5dfb1eadb1d7a9dccb3004cfd10f54cd9"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2023/coatbooking01-onuma.html",
-            "size": 22895,
-            "hash": "0635eedd7853ebfdfadbc930759b4f64fee4ee9ff1c657df31bf2882048abca4"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2023/coatbooking01-tatenuma.html",
-            "size": 22259,
-            "hash": "7f69c7cc79532eb16fd081242f86002beabe4a43fc7c9c118e8c6f59267dae5b"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2023/coatbooking03-onuma.html",
-            "size": 24929,
-            "hash": "0051125d23ef17d92f7007f0410681c0cda836c0b218b6dd502e2fc34257b59c"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2023/coatbooking04-tatenuma.html",
-            "size": 23020,
-            "hash": "7508cf5aa764753cdca867d0c591a74c778bbb44307b8b37d87320d8a8f26847"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2023/coatbooking05-onuma.html",
-            "size": 26370,
-            "hash": "c15a80f85a73013f5061a24a3f663d5acee02aa47f1c8e040e97859f5b72cd44"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2023/coatbooking05-tatenuma.html",
-            "size": 24962,
-            "hash": "12708d2bd271b6b094bb8856d0e3ebc880a5727612e8d039933a46116448d9c6"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2023/coatbooking06-tatenuma.html",
-            "size": 22568,
-            "hash": "7dc12fb35935abd0c8995d3af1d08cece4b4d3d535cbd894798c081798dd1fd9"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2023/coatbooking07-onuma.html",
-            "size": 24900,
-            "hash": "b3216093f322c62ce6f923074f9b6a8fed2cfd4b6e2131cc675fdef0eec6b95c"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2023/coatbooking07-tatenuma.html",
-            "size": 25366,
-            "hash": "9dbde43dc49e9a5efc758a95de0a704bab6b8f5cdc2735bff11a260de062620c"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2023/coatbooking08-onuma.html",
-            "size": 22950,
-            "hash": "63c2080bfe3380c4281d64501d4417a48746e55ae1dab4074c2c9a2ee65eb3f4"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2023/coatbooking08-tatenuma.html",
-            "size": 25377,
-            "hash": "79327647b2b67a8d5450cc2e2a5e8745a9855d4c04e954b838fb2e17dd85b6f6"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2023/coatbooking09-onuma.html",
-            "size": 25154,
-            "hash": "abce76a7cffd22ea1cfe7b736bf6923d9552b636a76141ac828a6bac498a45c6"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2023/coatbooking09-tatenuma.html",
-            "size": 23949,
-            "hash": "9496289fd88fbd94054d9f8ec0db260f60f22c12b6fcf8b28ce67a718b2a7d45"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2023/coatbooking10-onuma.html",
-            "size": 26229,
-            "hash": "bd5b1796fc9f736a9c8c839a33bc185b9b850e7c4e80d281fe9e2df95d3618df"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2023/coatbooking10-tatenuma.html",
-            "size": 26403,
-            "hash": "b648e93c64ac6e022bbfd39635ce04d0963dddad0aaada403a17cc485be3ddbd"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2023/coatbooking11-onuma.html",
-            "size": 23455,
-            "hash": "72fb25a8a7c9abb46ebbb19c028856e3c1c58a7d595b81cc7f7568818de91eb9"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2023/coatbooking11-tatenuma.html",
-            "size": 25034,
-            "hash": "3662188e1d4ee619d64071dd70fcfbb8ca49fcd2bacccbe0a3372ea160219215"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2023/coatbooking12-onuma.html",
-            "size": 23079,
-            "hash": "c9d38a4fc5ec022a3daea6d74447a9bf26ae7a59c67c03ff29cbbf58090c0a4d"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2023/coatbooking12-tatenuma.html",
-            "size": 22701,
-            "hash": "af043d701e52671536ec9ccc8a973aac3eac0f6b354aff676ad929aa3ccb5eaf"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2024/coatbooking01-onuma.html",
-            "size": 23341,
-            "hash": "669a92942f3bfbd92a41827c422392a615d67e49c3b519e43b0a356481948174"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2024/coatbooking01-tatenuma.html",
-            "size": 22563,
-            "hash": "ac0c7e7f02bff0f262a5595c36fdef620a9ba7e16bcae4551b948a84b2d6b233"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2024/coatbooking02-onuma.html",
-            "size": 23758,
-            "hash": "d01d85b60205d84c9bbefb46bfecd27033fcae67df8e52fc3cb292e1148bbba7"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2024/coatbooking02-tatenuma.html",
-            "size": 23462,
-            "hash": "03303446aa9697bae52115444da425eda4dbf5ac1cb9f7e71295f0ead6d7697d"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2024/coatbooking03-onuma.html",
-            "size": 26873,
-            "hash": "2b7f0ec794efea6281708b6efebc766e30459dcf69047dc35985b352628802ea"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2024/coatbooking03-tatenuma.html",
-            "size": 23930,
-            "hash": "0d3c24918b1116c5834d3ea421b7278e4b2c03cfa40cd55dadb7f9cbc14b9dc3"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2024/coatbooking04-onuma.html",
-            "size": 23860,
-            "hash": "67afdd32386969daa85f3c331e81643340eb90bfd8f2261bae5c781c5cacaf00"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2024/coatbooking04-tatenuma.html",
-            "size": 23734,
-            "hash": "18c0dc59aa78f618d12176545e499a2f033cf0c9a053f1ac4052ab6de3a62760"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2024/coatbooking05-onuma.html",
-            "size": 26863,
-            "hash": "b175374b9398ad218a10a2fe506a6b799d0db2afc1b6c5b8485ba051a32aab70"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2024/coatbooking05-tatenuma.html",
-            "size": 24492,
-            "hash": "708f0acd4f07ab6b2ec04a3458ad2d6f52c4347943db4b1cbb6ac56bc4972b90"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2024/coatbooking06-onuma.html",
-            "size": 25393,
-            "hash": "79ec34c28d4af45c4d94d1bc359f89a6ccc06f461dc57dd475f345e15d788061"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2024/coatbooking06-tatenuma.html",
-            "size": 24145,
-            "hash": "b8c26294147dfedebee805cb317bb0a545f2968e5a198d0e92c5f21e6c776084"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2024/coatbooking07-onuma.html",
-            "size": 23755,
-            "hash": "566862b15740ce6c2ce150dc15ef144b7571fa853166c62b462a841ccfdf5bf7"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2024/coatbooking07-tatenuma.html",
-            "size": 25193,
-            "hash": "843b9ced065ec126eb4d5bad8289c3838f3f040cc4fdf60985bcee0fce5802dd"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2024/coatbooking08-onuma.html",
-            "size": 25079,
-            "hash": "8def35742337c6bb862792705b6ae64d5f24cd474c456fc96120bb05ab7d8af7"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2024/coatbooking08-tatenuma.html",
-            "size": 24283,
-            "hash": "da7cb11debfd48f2b4cdd7c0f9b7908ab466a2cf491e6506f06f96e9814aec48"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2024/coatbooking09-tatenuma.html",
-            "size": 25017,
-            "hash": "01d1ca93dfba673731cf7b50f62114da72fc2af7dc40001fc2135013ca008f0c"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2024/coatbooking10-onuma.html",
-            "size": 25095,
-            "hash": "7aa2a09fb26c09d1c0c1283afb63c55059889b9dc559d98d1c4ca92400af9cd8"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2024/coatbooking10-tatenuma.html",
-            "size": 26538,
-            "hash": "7502102dfa19fa91cb4dc5bf42e69a72bffaad20e23736047d77cc9405ec3bb7"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2024/coatbooking11-onuma.html",
-            "size": 25952,
-            "hash": "f1841f7109a9b16cf4598e4a3c2cccd3c7418d29c7ba9e83a3b55d2f7caa9cb7"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2025/coatbooking01-onuma.html",
-            "size": 23806,
-            "hash": "c9fad1b50688aeba22e5c83bfbb4c90bfe4b3897b707b25cc68ce63e462a226a"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2025/coatbooking01-tatenuma.html",
-            "size": 22589,
-            "hash": "3c7376be60f12898f2692001bfbe385a56ef99aef1ea4044a00d71cf72c73c12"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2025/coatbooking02-onuma.html",
-            "size": 24219,
-            "hash": "24a667499d1900327c05196ce561c57dbfe19a3cd4c5568f307db387d6d88837"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2025/coatbooking02-tatenuma.html",
-            "size": 22616,
-            "hash": "abbe2bd6b467c33fa05f65df5f8f13cbe571571c74f5a220f2303d16469e6019"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2025/coatbooking03-onuma.html",
-            "size": 24213,
-            "hash": "9a147a60a45546a7ef32f737abdcaeb3faabfa590668192d13361fa2b73e250f"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2025/coatbooking03-tatenuma.html",
-            "size": 24655,
-            "hash": "2f3f86b828acdfbe67a2501f0a4ddcb3cb22344fc9264e46fe5ebab84fd43e25"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2025/coatbooking04-onuma.html",
-            "size": 24708,
-            "hash": "b773d2903addd44f9f4952cb8eac1582723ec5e89f0ab9868189c4730f7a94e7"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2025/coatbooking04-tatenuma.html",
-            "size": 23915,
-            "hash": "64258e2b1dd2968e1c66949b2b732ab905adcf0085eef000803e337fa1eedb44"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2025/coatbooking05-onuma.html",
-            "size": 28448,
-            "hash": "6f6d8cb559f0a1ad51ef533877e24301bbaecda6a8cae2e23bcdec11a2c411b8"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2025/coatbooking05-tatenuma.html",
-            "size": 24939,
-            "hash": "0efbe458be67bf97925ff758725699726d25ee519375b48bfe21a0c8cc65c744"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2025/coatbooking06-onuma.html",
-            "size": 25366,
-            "hash": "9ecca19d0235c03909c6f176407d5c2bc0e15d744e321c17b7409b583600ad63"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2025/coatbooking06-tatenuma.html",
-            "size": 23875,
-            "hash": "5625d84fcc89c232cd3c7ea0c47b2f3540c8ff99be91148e6ac3171f230a634e"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2025/coatbooking07-onuma.html",
-            "size": 24985,
-            "hash": "60c3eced61a32d3cdb5cdfadec785d84ba05ecd905f87fb7d7cf1f256acb4445"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2025/coatbooking07-tatenuma.html",
-            "size": 25848,
-            "hash": "90d05808ebe3f48668740762eb8f7b71fed1eba703ef651b1e7901043c8a8473"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2025/coatbooking08-onuma.html",
-            "size": 25914,
-            "hash": "a88a0c4261f0c329d92608c963e7a548c73cb46e2bf9633910caf434f1dcf39f"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2025/coatbooking08-tatenuma.html",
-            "size": 26789,
-            "hash": "0192e99be2394e63b8edd0a4545d668b302df2f551a9ce5509594f2b5cfbf56b"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2025/coatbooking09-onuma.html",
-            "size": 25381,
-            "hash": "cf58dc6c6754f7ea8fe054c1ee870622a54deba245a0cef7ac717595a8618f12"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2025/coatbooking09-tatenuma.html",
-            "size": 24724,
-            "hash": "d9e6db67b64d2a309c07f0196365d480ce4ce3dbd819243fc4922c71d43d7c40"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2025/coatbooking10-onuma.html",
-            "size": 26317,
-            "hash": "4b28f3d1c6235828827ac64f32a0b43b93051560fba339a73d626bc356ff3b39"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2025/coatbooking10-tatenuma.html",
-            "size": 26556,
-            "hash": "bfe359d2d55a7f72c6b43f350aa242f69472d5fe42018c4ba6078c3d00b72a54"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2025/coatbooking11-onuma.html",
-            "size": 27469,
-            "hash": "2b2b868c581a33f58c3f58b9924cec46ef0dc719a244c4d593b567f05630ba67"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2025/coatbooking11-tatenuma.html",
-            "size": 26984,
-            "hash": "9ea093973d431061ea1c6964b8284aa3bfb63c35cc1f10829d0ecb4e42234af6"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2025/coatbooking12-onuma.html",
-            "size": 22168,
-            "hash": "de940b66f855802cd67d18170c1620a7fb4ce45864093eccacddd38c80cacc5b"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2025/coatbooking12-tatenuma.html",
-            "size": 22989,
-            "hash": "98025f1a268a62cda3419cf3b814bb7564a000aecac0e42d1da087bea7736d28"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2026/coatbooking01-onuma.html",
-            "size": 23936,
-            "hash": "aa24a51b6e4107a4130fd9c91e6e0904ac50616319ff213503d921a014fcedaf"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2026/coatbooking01-tatenuma.html",
-            "size": 23162,
-            "hash": "765771f3d68e02a979b8e381bc1aaadae25adb428a6c51f47c26f8375a8d2c03"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2026/coatbooking02-onuma.html",
-            "size": 25271,
-            "hash": "e7b060b5c416f5411d0985d4e79c146b4deab11852f2ca5433d5212e56b9706e"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2026/coatbooking02-tatenuma.html",
-            "size": 23627,
-            "hash": "e1b462e09744bdd14fa9e328ea677b0425d5850002a79130bc2b6556b047080f"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2026/coatbooking03-onuma.html",
-            "size": 24422,
-            "hash": "0b47db76a78571df044e1515a4fab7148ba37c1ebd3bdaefa07fa49d4bb99535"
-        },
-        {
-            "type": "file",
-            "name": "coatbokking/NEWFORMAT/2026/coatbooking03-tatenuma.html",
-            "size": 25761,
-            "hash": "45f233ef949b4bb2e5af41b587b3008f2f39a8e563d68819adb6eea0eed61830"
         }
     ]
 }
