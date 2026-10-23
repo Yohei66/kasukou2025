@@ -7,6 +7,7 @@
  */
 require __DIR__ . '/auth.php';
 require __DIR__ . '/lib/reservation.php';
+require __DIR__ . '/lib/cancellation.php';
 admin_require_login();
 
 $h = fn($s) => htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
@@ -16,6 +17,7 @@ $loc = (string)($_GET['loc'] ?? '');
 
 $valid = ($year >= 2000 && $month >= 1 && $month <= 12 && res_valid_location($loc));
 $data = $valid ? res_load($year, $month, $loc) : null;
+$cancels = $valid ? cxl_load_month($year, $month, $loc) : [];
 $csrf = admin_csrf_token();
 ?>
 <!DOCTYPE html>
@@ -49,6 +51,23 @@ $csrf = admin_csrf_token();
   .msg { font-size:14px; }
   .msg.ok { color:#1a7f1a; } .msg.err { color:#c0392b; }
   .hint { max-width:1040px; margin:0 auto 10px; font-size:12px; color:#666; }
+  /* 中止情報 */
+  td.cxl { position:relative; box-shadow: inset 0 0 0 2px #d63031; }
+  .cxl-badge { position:absolute; top:1px; right:1px; font-size:9px; line-height:1; padding:1px 2px; border-radius:3px; background:#d63031; color:#fff; pointer-events:none; }
+  tr.cxl-row > td { background:#fff5f5; text-align:left; padding:4px 10px 6px 28px; }
+  .cxl-item { display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:13px; padding:3px 0; }
+  .cxl-item + .cxl-item { border-top:1px dashed #f0c4c4; }
+  .cxl-head { color:#d63031; font-weight:bold; }
+  .cxl-slot { font-weight:bold; min-width:76px; }
+  .cxl-reason { background:#d63031; color:#fff; border-radius:10px; padding:1px 8px; font-size:12px; }
+  .cxl-comment { color:#555; }
+  .cxl-at { color:#999; font-size:11px; }
+  .cxl-btn { border:1px solid #ccc; background:#fff; border-radius:6px; padding:2px 8px; font-size:12px; cursor:pointer; }
+  .cxl-btn.danger { color:#c0392b; border-color:#e0b4b4; }
+  .cxl-btn.primary { color:#fff; background:#0984e3; border-color:#0984e3; }
+  .cxl-item input, .cxl-item select { padding:3px 5px; border:1px solid #ccc; border-radius:6px; font-size:13px; }
+  .cxl-actions { margin-left:auto; display:flex; gap:6px; }
+  .cxl-msg { color:#c0392b; font-size:12px; }
 </style>
 </head>
 <body>
@@ -60,7 +79,8 @@ $csrf = admin_csrf_token();
     <button id="save" class="savebtn">保存（公開ページに反映）</button>
   </div>
   <div class="hint">
-    各マスをクリックで <span style="color:#1a7f1a;font-weight:bold;">〇</span>（確保）→ <span style="color:#c0392b;">×</span>（未確保）→ <span style="color:#8a6d00;font-weight:bold;">D</span> の順で切替。備考は自由入力。日付の追加・削除も可能。保存で公開ページが自動更新されます。
+    各マスをクリックで <span style="color:#1a7f1a;font-weight:bold;">〇</span>（確保）→ <span style="color:#c0392b;">×</span>（未確保）→ <span style="color:#8a6d00;font-weight:bold;">D</span> の順で切替。備考は自由入力。日付の追加・削除も可能。保存で公開ページが自動更新されます。<br>
+    <span style="color:#d63031;font-weight:bold;">赤枠</span>のマスは中止連絡があった枠です。日付の下に内容が表示され、「編集」「取消」はその場で即保存されます（上の保存ボタンは不要）。
   </div>
 
   <div class="addbar">
@@ -76,6 +96,9 @@ $csrf = admin_csrf_token();
   const CSRF = <?= json_encode($csrf) ?>;
   const TARGET = { year: <?= (int)$year ?>, month: <?= (int)$month ?>, loc: <?= json_encode($loc) ?> };
   const DATA = <?= json_encode($data, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+  // 中止情報: { 日: { A|B: { slotN: {reason,name,comment,at,edited_at?} } } }
+  const CANCELS = <?= json_encode((object)$cancels, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+  const REASONS = { rain: '雨', heat: '熱中症警戒', thunder: '雷', wind: '強風', other: 'その他' };
   const SLOTS = ['9-11', '11-13', '13-15', '15-17'];
   const DOW = ['日','月','火','水','木','金','土'];
   const STATES = ['〇', '×', 'D']; // クリックでこの順に切替（〇=確保, ×=未確保, D=その他予約）
@@ -105,7 +128,7 @@ $csrf = admin_csrf_token();
 
   // DOMの編集状態をモデルに反映（行は model と同順）
   function syncFromDom(){
-    const rows = document.querySelectorAll('#wrap tbody tr');
+    const rows = document.querySelectorAll('#wrap tbody tr.day-row');
     rows.forEach((tr, i) => {
       if (!model[i]) return;
       const a = ['×','×','×','×'], b = ['×','×','×','×'];
@@ -128,6 +151,7 @@ $csrf = admin_csrf_token();
     const tbody = document.createElement('tbody');
     model.forEach((d, idx) => {
       const tr = document.createElement('tr');
+      tr.className = 'day-row';
       const dc = dowClass(d.dow);
       tr.innerHTML = `<td class="${dc}">${TARGET.month}月${d.day}日</td><td class="${dc}">${d.dow||''}</td>`;
       ['a','b'].forEach(court => {
@@ -135,6 +159,10 @@ $csrf = admin_csrf_token();
           const td = document.createElement('td');
           td.className = court==='a' ? 'grp-a' : 'grp-b';
           td.appendChild(makeToggle((d[court]||[])[s] || '×', court, s));
+          if (cancelOf(d.day, court, s)){
+            td.classList.add('cxl');
+            td.appendChild(el('span', 'cxl-badge', '中止'));
+          }
           tr.appendChild(td);
         }
       });
@@ -148,9 +176,124 @@ $csrf = admin_csrf_token();
       del.addEventListener('click', () => { if (confirm(`${TARGET.month}月${d.day}日 を削除しますか？`)) removeDay(idx); });
       tdDel.appendChild(del); tr.appendChild(tdDel);
       tbody.appendChild(tr);
+      const cxlRow = renderCancelRow(d.day);
+      if (cxlRow) tbody.appendChild(cxlRow);
     });
     tbl.appendChild(tbody);
     wrap.appendChild(tbl);
+  }
+
+  // ---- 中止情報（日付行の下に表示・編集・取消） ----
+  function pad2(n){ return ('0' + n).slice(-2); }
+  function dateKey(day){ return `${TARGET.year}-${pad2(TARGET.month)}-${pad2(day)}`; }
+  function cancelOf(day, court, s){
+    const c = CANCELS[day] && CANCELS[day][court.toUpperCase()];
+    return (c && c['slot' + s]) || null;
+  }
+  function el(tag, cls, text){
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  // 中止がある日だけ、その日の行の下に1行追加する
+  function renderCancelRow(day){
+    const items = [];
+    ['A','B'].forEach(court => {
+      for (let s=0; s<4; s++){
+        const entry = cancelOf(day, court, s);
+        if (entry) items.push({ court, s, entry });
+      }
+    });
+    if (!items.length) return null;
+    const tr = el('tr', 'cxl-row');
+    const td = el('td');
+    td.colSpan = 12;
+    items.forEach(it => td.appendChild(renderCancelItem(day, it)));
+    tr.appendChild(td);
+    return tr;
+  }
+
+  function renderCancelItem(day, it){
+    const box = el('div', 'cxl-item');
+    const e = it.entry;
+    box.appendChild(el('span', 'cxl-head', '中止'));
+    box.appendChild(el('span', 'cxl-slot', `${it.court}面 ${SLOTS[it.s]}`));
+    box.appendChild(el('span', 'cxl-reason', REASONS[e.reason] || e.reason || '—'));
+    box.appendChild(el('span', '', e.name || '—'));
+    if (e.comment) box.appendChild(el('span', 'cxl-comment', `「${e.comment}」`));
+    let at = e.at ? `${e.at} 登録` : '';
+    if (e.edited_at) at += `（${e.edited_at} 編集）`;
+    if (at) box.appendChild(el('span', 'cxl-at', at));
+    const acts = el('span', 'cxl-actions');
+    const edit = el('button', 'cxl-btn', '編集'); edit.type = 'button';
+    edit.addEventListener('click', () => box.replaceWith(renderCancelForm(day, it)));
+    const clr = el('button', 'cxl-btn danger', '取消'); clr.type = 'button';
+    clr.addEventListener('click', () => {
+      if (confirm(`${TARGET.month}月${day}日 ${it.court}面 ${SLOTS[it.s]} の中止を取り消しますか？\n（公開ページの「中止」表示も消えます）`)) {
+        postCancel({ action: 'clear', day, court: it.court, s: it.s }, box);
+      }
+    });
+    acts.appendChild(edit); acts.appendChild(clr);
+    box.appendChild(acts);
+    return box;
+  }
+
+  function renderCancelForm(day, it){
+    const box = el('div', 'cxl-item');
+    const e = it.entry;
+    box.appendChild(el('span', 'cxl-head', '中止'));
+    box.appendChild(el('span', 'cxl-slot', `${it.court}面 ${SLOTS[it.s]}`));
+    const sel = el('select');
+    Object.keys(REASONS).forEach(k => {
+      const o = el('option', '', REASONS[k]); o.value = k;
+      if (k === e.reason) o.selected = true;
+      sel.appendChild(o);
+    });
+    const name = el('input'); name.type = 'text'; name.maxLength = 30; name.placeholder = 'キャンセル者'; name.value = e.name || ''; name.style.width = '110px';
+    const comment = el('input'); comment.type = 'text'; comment.maxLength = 100; comment.placeholder = 'ひとこと（任意）'; comment.value = e.comment || ''; comment.style.width = '220px';
+    box.appendChild(sel); box.appendChild(name); box.appendChild(comment);
+    const acts = el('span', 'cxl-actions');
+    const ok = el('button', 'cxl-btn primary', '保存'); ok.type = 'button';
+    ok.addEventListener('click', () => postCancel({
+      action: 'update', day, court: it.court, s: it.s,
+      reason: sel.value, name: name.value.trim(), comment: comment.value.trim()
+    }, box));
+    const back = el('button', 'cxl-btn', 'やめる'); back.type = 'button';
+    back.addEventListener('click', () => box.replaceWith(renderCancelItem(day, it)));
+    acts.appendChild(ok); acts.appendChild(back);
+    box.appendChild(acts);
+    return box;
+  }
+
+  async function postCancel(p, box){
+    if (p.action === 'update' && !p.name){ showCancelMsg(box, 'キャンセル者の名前を入力してください'); return; }
+    const setDisabled = v => box.querySelectorAll('button').forEach(b => b.disabled = v);
+    setDisabled(true);
+    try {
+      const resp = await fetch('cancel_save.php', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          csrf: CSRF, action: p.action, date: dateKey(p.day), location: TARGET.loc,
+          court: p.court, slot: String(p.s), reason: p.reason, name: p.name, comment: p.comment
+        })
+      });
+      const j = await resp.json().catch(()=>({}));
+      if (!resp.ok || !j.ok){ showCancelMsg(box, (j && j.message) || '保存に失敗しました'); setDisabled(false); return; }
+      const byCourt = CANCELS[p.day] || (CANCELS[p.day] = {});
+      const slots = byCourt[p.court] || (byCourt[p.court] = {});
+      if (p.action === 'update') slots['slot' + p.s] = j.entry;
+      else delete slots['slot' + p.s];
+      syncFromDom(); // 未保存の〇×・備考を保ったまま描き直す
+      renderRows();
+    } catch(e){ showCancelMsg(box, '通信エラー'); setDisabled(false); }
+  }
+
+  function showCancelMsg(box, text){
+    let m = box.querySelector('.cxl-msg');
+    if (!m){ m = el('span', 'cxl-msg'); box.appendChild(m); }
+    m.textContent = text;
   }
 
   function addDay(){

@@ -74,7 +74,46 @@
       td.style.color = '#fff';
       td.style.backgroundColor = '#d63031';
       td.style.fontWeight = 'bold';
+      td.style.cursor = 'pointer';
+      td.setAttribute('data-court-cancel', '1');
       td.title = '中止（' + reasonJP(entry.reason) + '） キャンセル者: ' + (entry.name || '');
+      // タップ／クリックで理由・キャンセル者をトースト表示（全員に見せず、知りたい人だけ）
+      (function (e) {
+        td.addEventListener('click', function () { showToast(e); });
+      })(entry);
     }
+  }
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function showToast(entry) {
+    var t = document.getElementById('cancel-toast');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = 'cancel-toast';
+      t.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);'
+        + 'max-width:88%;background:rgba(20,20,20,.92);color:#fff;padding:12px 16px;'
+        + 'border-radius:10px;font-size:14px;line-height:1.7;z-index:9999;'
+        + 'box-shadow:0 6px 20px rgba(0,0,0,.35);cursor:pointer;text-align:left;';
+      t.addEventListener('click', function () { t.style.display = 'none'; });
+      document.body.appendChild(t);
+      // 中止マス・トースト以外をクリック／タップしたら閉じる
+      document.addEventListener('click', function (ev) {
+        var el = ev.target;
+        if (el && el.closest && (el.closest('[data-court-cancel]') || el.closest('#cancel-toast'))) return;
+        t.style.display = 'none';
+      });
+    }
+    var html = '<div style="font-weight:bold;color:#ff8a80;margin-bottom:2px;">中止</div>'
+      + '理由：' + escapeHtml(reasonJP(entry.reason))
+      + '<br>キャンセル者：' + escapeHtml(entry.name || '—');
+    if (entry.comment) html += '<br>ひとこと：' + escapeHtml(entry.comment);
+    if (entry.at) html += '<br><span style="opacity:.7;font-size:12px;">' + escapeHtml(entry.at) + ' 登録</span>';
+    t.innerHTML = html;
+    t.style.display = 'block';
   }
 })();
